@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Translator;
+using Translator.AST;
 
 namespace language
 {
@@ -10,6 +9,20 @@ namespace language
     {
         static void Main(string[] args)
         {
+            var lexer = new Lexer();
+            var tokens = lexer.Tokenize("12 * 2 / 6");
+
+            var parser = new Parser();
+            var expression = parser.Parse(tokens);
+
+            var evaluator = new Evaluator();
+            Console.WriteLine(evaluator.Evaluate(expression));
+
+            foreach (var error in lexer.Errors.Concat(parser.Errors))
+                Console.WriteLine(error);
+
+
+            Console.ReadLine();
         }
     }
 }
