@@ -45,21 +45,23 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\AST\BinaryExpression.cs" />
-    <Compile Include="src\AST\Expression.cs" />
-    <Compile Include="src\AST\LiteralExpression.cs" />
-    <Compile Include="src\AST\ParenthesizedExpression.cs" />
-    <Compile Include="src\AST\SyntaxNode.cs" />
-    <Compile Include="src\AST\UnaryExpression.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Expressions\BinaryExpression.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Expressions\Expression.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Expressions\LiteralExpression.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Expressions\ParenthesizedExpression.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\SyntaxNode.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Expressions\UnaryExpression.cs" />
     <Compile Include="src\Evaluator.cs" />
-    <Compile Include="src\Lexer.cs" />
-    <Compile Include="src\OperatorsInfo.cs" />
-    <Compile Include="src\Parser.cs" />
-    <Compile Include="src\Token\Token.cs" />
-    <Compile Include="src\Token\TokenType.cs" />
+    <Compile Include="src\LexemAnalysis\Lexer.cs" />
+    <Compile Include="src\SyntaxAnalysis\OperatorsInfo.cs" />
+    <Compile Include="src\SyntaxAnalysis\Parser.cs" />
+    <Compile Include="src\SemanticAnalysis\SemanticResolution.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Token.cs" />
+    <Compile Include="src\LexemAnalysis\Token\TokenType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="src\SemanticAnalysis\SRT\.gitkeep" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
