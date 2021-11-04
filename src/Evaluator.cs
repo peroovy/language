@@ -1,4 +1,5 @@
-﻿using Translator.AST;
+﻿using System;
+using Translator.AST;
 
 namespace Translator
 {
@@ -8,6 +9,21 @@ namespace Translator
         {
             if (expression is LiteralExpression number)
                 return int.TryParse(number.Literal.Value, out var result) ? result : 0;
+
+            if (expression is ParenthesizedExpression p)
+                return Evaluate(p.Expression);
+
+            if (expression is UnaryExpression un)
+            {
+                switch (un.OperatorToken.Type)
+                {
+                    case TokenType.Plus:
+                        return Evaluate(un.Operand);
+
+                    case TokenType.Minus:
+                        return -Evaluate(un.Operand);
+                }
+            }
 
             if (expression is BinaryExpression bin)
             {
@@ -27,6 +43,9 @@ namespace Translator
 
                     case TokenType.Slash:
                         return left / right;
+
+                    case TokenType.StarStar:
+                        return (int)Math.Pow(left, right);
                 }
 
                 return left;

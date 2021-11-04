@@ -14,9 +14,18 @@
                 case TokenType.Slash:
                     return 2;
 
+                case TokenType.StarStar:
+                    return 3;
+
                 default:
                     return null;
             }
+        }
+
+        public static bool IsUnaryOperator(this TokenType type)
+        {
+            return type == TokenType.Plus
+                || type == TokenType.Minus;
         }
     }
 }

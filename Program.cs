@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Translator;
-using Translator.AST;
 
 namespace language
 {
@@ -10,19 +9,28 @@ namespace language
         static void Main(string[] args)
         {
             var lexer = new Lexer();
-            var tokens = lexer.Tokenize("12 * 2 / 6");
-
             var parser = new Parser();
-            var expression = parser.Parse(tokens);
-
             var evaluator = new Evaluator();
-            Console.WriteLine(evaluator.Evaluate(expression));
 
-            foreach (var error in lexer.Errors.Concat(parser.Errors))
-                Console.WriteLine(error);
+            while (true)
+            {
+                Console.Write(">> ");
+                var code = Console.ReadLine();
 
+                var tokens = lexer.Tokenize(code);
+                var expression = parser.Parse(tokens);
+                var value = evaluator.Evaluate(expression);
 
-            Console.ReadLine();
+                var errors = lexer.Errors.Concat(parser.Errors);
+
+                if (!errors.Any())
+                    Console.WriteLine(value);
+
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                foreach (var error in errors)
+                    Console.WriteLine(error);
+                Console.ResetColor();
+            }
         }
     }
 }

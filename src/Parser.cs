@@ -15,6 +15,7 @@ namespace Translator
         {
             _tokens = tokens;
             _position = 0;
+            _errors.Clear();
 
             return ParseBinaryExpression();
         }
@@ -44,7 +45,19 @@ namespace Translator
 
         private Expression ParseBinaryExpression(int parentPrecedence = 0)
         {
-            var left = ParsePrimaryExpression();
+            Expression left;
+
+            if (Current.Type.IsUnaryOperator())
+            {
+                var operatorToken = NextToken();
+                var expression = ParseBinaryExpression(parentPrecedence + 1);
+
+                left = new UnaryExpression(operatorToken, expression);
+            }
+            else
+            {
+                left = ParsePrimaryExpression();
+            }
 
             while (true)
             {
@@ -63,6 +76,18 @@ namespace Translator
 
         private Expression ParsePrimaryExpression()
         {
+            switch (Current.Type)
+            {
+                case TokenType.OpenParenthesis:
+                {
+                    var openParenthesis = NextToken();
+                    var expression = ParseBinaryExpression();
+                    var closeParenthesis = MatchToken(TokenType.CloseParenthesis);
+
+                    return new ParenthesizedExpression(openParenthesis, expression, closeParenthesis);
+                }
+            }
+
             var number = MatchToken(TokenType.Number);
             return new LiteralExpression(number);
         }

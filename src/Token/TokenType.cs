@@ -6,12 +6,13 @@
         Plus,
         Minus,
         Star,
+        StarStar,
         Slash,
         OpenParenthesis,
         CloseParenthesis,
-        Unknown,
-        EOF,
         Space,
         LineSeparator,
+        Unknown,
+        EOF,
     }
 }

@@ -6,7 +6,7 @@ namespace Translator
     internal sealed class Lexer
     {
         private string _code;
-        private int _position = 0;
+        private int _position;
 
         private readonly List<string> _errors = new List<string>();
 
@@ -28,6 +28,7 @@ namespace Translator
         {
             _code = code;
             _position = 0;
+            _errors.Clear();
 
             var tokens = new List<Token>();
             var index = 0;
@@ -62,20 +63,13 @@ namespace Translator
             return tokens;
         }
 
-        private char Current => _position < _code.Length ? _code[_position] : '\0';
+        private char Current => Peek(0);
 
-        private Token NextСoncatenatedToken(
-            Func<char, bool> predicate,
-            TokenType type, int index, int numberLine)
+        private char Peek(int offset)
         {
-            var start = _position;
+            var index = _position + offset;
 
-            while (predicate(Current))
-                _position++;
-
-            var length = _position - start;
-
-            return new Token(type, _code.Substring(start, length), index, numberLine);
+            return index < _code.Length ? _code[index] : '\0';
         }
 
         private Token NextToken(int index, int numberLine)
@@ -95,12 +89,33 @@ namespace Translator
                     TokenType.Space, index, numberLine);
             }
 
+            if (Current == '*' && Peek(1) == '*')
+            {
+                _position += 2;
+                return new Token(TokenType.StarStar, "**", index, numberLine);
+            }
+
+
             var terminal = _terminals.TryGetValue(Current, out var type) 
                 ? new Token(type, Current.ToString(), index, numberLine)
                 : new Token(TokenType.Unknown, Current.ToString(), index, numberLine);
 
             _position++;
             return terminal;
+        }
+
+        private Token NextСoncatenatedToken(
+            Func<char, bool> predicate,
+            TokenType type, int index, int numberLine)
+        {
+            var start = _position;
+
+            while (predicate(Current))
+                _position++;
+
+            var length = _position - start;
+
+            return new Token(type, _code.Substring(start, length), index, numberLine);
         }
     }
 }
