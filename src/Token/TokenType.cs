@@ -1,6 +1,6 @@
 ﻿namespace Translator
 {
-    public enum TokenType
+    internal enum TokenType
     {
         Number,
         Plus,

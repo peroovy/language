@@ -1,6 +1,6 @@
 ﻿namespace Translator
 {
-    sealed class Token
+    internal sealed class Token
     {
         public Token(TokenType type, string value, int position, int numberLine)
         {

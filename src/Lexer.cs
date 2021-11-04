@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Translator
 {
-    sealed class Lexer
+    internal sealed class Lexer
     {
         private string _code;
         private int _position = 0;

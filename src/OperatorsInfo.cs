@@ -1,6 +1,6 @@
 ﻿namespace Translator
 {
-    static class OperatorsInfo
+    internal static class OperatorsInfo
     {
         public static int? GetBinaryOperatorPrecedence(this TokenType type)
         {

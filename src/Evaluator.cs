@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Translator.AST;
+﻿using Translator.AST;
 
 namespace Translator
 {
-    sealed class Evaluator
+    internal sealed class Evaluator
     {
         public int Evaluate(Expression expression)
         {

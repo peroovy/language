@@ -4,7 +4,7 @@ using Translator.AST;
 
 namespace Translator
 {
-    sealed class Parser
+    internal sealed class Parser
     {
         private List<Token> _tokens;
         private int _position;
