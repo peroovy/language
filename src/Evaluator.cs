@@ -6,15 +6,21 @@ namespace Translator
 {
     internal sealed class Evaluator
     {
-        private readonly List<string> _errors = new List<string>();
+        private readonly ResolvedExpression _expression;
 
-        public IEnumerable<string> Errors => _errors;
+        private readonly Diagnostic _diagnostic;
 
-        public int? Evaluate(ResolvedExpression expression)
+        public Evaluator(SourceCode code, ResolvedExpression expression)
         {
-            _errors.Clear();
+            _expression = expression;
+            _diagnostic = new Diagnostic(code);
+        }
 
-            return EvaluateExpression(expression);
+        public IEnumerable<Error> Errors => _diagnostic.Errors;
+
+        public int? Evaluate()
+        {
+            return EvaluateExpression(_expression);
         }
 
         public int? EvaluateExpression(ResolvedExpression expression)
@@ -25,7 +31,7 @@ namespace Translator
                     return EvaluateLiteralExpression((ResolvedLiteralExpression)expression);
 
                 case ResolvedNodeKind.ParenthesizedExpression:
-                    return Evaluate((expression as ResolvedParenthesizedExpression).Expression);
+                    return EvaluateExpression((expression as ResolvedParenthesizedExpression).Expression);
 
                 case ResolvedNodeKind.UnaryExpression:
                     return EvaluateUnaryExpression((ResolvedUnaryExpression)expression);
@@ -50,10 +56,10 @@ namespace Translator
             switch (unary.Operation)
             {
                 case UnaryOperation.Positive:
-                    return Evaluate(unary.Operand);
+                    return EvaluateExpression(unary.Operand);
 
                 case UnaryOperation.Negation:
-                    return -Evaluate(unary.Operand);
+                    return -EvaluateExpression(unary.Operand);
             }
 
             throw new Exception($"Unknown unary operation's type '{unary.Operation}'");
@@ -61,8 +67,8 @@ namespace Translator
 
         private int? EvaluateBinaryExpression(ResolvedBinaryExpression bin)
         {
-            var left = Evaluate(bin.Left);
-            var right = Evaluate(bin.Right);
+            var left = EvaluateExpression(bin.Left);
+            var right = EvaluateExpression(bin.Right);
 
             if (left is null || right is null)
                 return null;
@@ -82,7 +88,8 @@ namespace Translator
                 {
                     if (right == 0)
                     {
-                        _errors.Add($"ERROR: Division by zero");
+                        // _diagnostic.ReportDivisionByZero();
+
                         return null;
                     }
 

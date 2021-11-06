@@ -45,7 +45,13 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\SemanticAnalysis\OperationsInfo.cs" />
+    <Compile Include="src\Diagnostic\Diagnostic.cs" />
+    <Compile Include="src\Diagnostic\Error.cs" />
+    <Compile Include="src\Text\SourceCode.cs" />
+    <Compile Include="src\Text\TextLocation.cs" />
+    <Compile Include="src\Text\TextSpan.cs" />
+    <Compile Include="src\LexemAnalysis\Token\TokenInfo.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\Operations\OperationsInfo.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\Operations\BinaryOperation.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />

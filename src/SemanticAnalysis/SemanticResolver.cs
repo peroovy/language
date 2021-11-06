@@ -7,16 +7,22 @@ namespace Translator
 {
     internal sealed class SemanticResolver
     {
-        private readonly List<string> _errors = new List<string>();
+        private readonly Expression _expression;
 
-        public ResolvedExpression Resolve(Expression expression)
+        private readonly Diagnostic _diagnostic;
+
+        public SemanticResolver(SourceCode code, Expression expression)
         {
-            _errors.Clear();
-
-            return ResolveExpression(expression);
+            _expression = expression;
+            _diagnostic = new Diagnostic(code);
         }
 
-        public IEnumerable<string> Errors => _errors;
+        public IEnumerable<Error> Errors => _diagnostic.Errors;
+
+        public ResolvedExpression Resolve()
+        {
+            return ResolveExpression(_expression);
+        }
 
         private ResolvedExpression ResolveExpression(Expression expression)
         {
@@ -51,14 +57,14 @@ namespace Translator
 
         private ResolvedParenthesizedExpression ResolveParenthesizedExpression(ParenthesizedExpression parentheses)
         {
-            var resolvedExpression = Resolve(parentheses.Expression);
+            var resolvedExpression = ResolveExpression(parentheses.Expression);
 
             return new ResolvedParenthesizedExpression(resolvedExpression);
         }
 
         private ResolvedExpression ResolveUnaryExpression(UnaryExpression unary)
         {
-            var resolvedOperand = Resolve(unary.Operand);
+            var resolvedOperand = ResolveExpression(unary.Operand);
             var operation = unary.OperatorToken.Type.ToUnaryOperation();
 
             if (operation is null)
@@ -66,7 +72,7 @@ namespace Translator
 
             if (resolvedOperand.ReturnedType != typeof(int))
             {
-                _errors.Add($"ERROR: The unary operation '{operation}' is not defined for type '{resolvedOperand.ReturnedType}'");
+                _diagnostic.ReportUndefinedUnaryOperationFor(resolvedOperand.ReturnedType, operation.Value, unary.OperatorToken.Location);
 
                 return resolvedOperand;
             }
@@ -76,21 +82,21 @@ namespace Translator
 
         private ResolvedExpression ResolveBinaryExpression(BinaryExpression bin)
         {
-            var resolvedLeft = Resolve(bin.Left);
-            var resolvedRight = Resolve(bin.Right);
+            var left = ResolveExpression(bin.Left);
+            var right = ResolveExpression(bin.Right);
             var operation = bin.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
                 throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not defined");
 
-            if (resolvedLeft.ReturnedType != typeof(int) || resolvedRight.ReturnedType != typeof(int))
+            if (left.ReturnedType != typeof(int) || right.ReturnedType != typeof(int))
             {
-                _errors.Add($"ERROR: The binary operator '{bin.OperatorToken.Value}' is not defined for types '{resolvedLeft.ReturnedType}' and '{resolvedRight.ReturnedType}'");
-
-                return resolvedLeft;
+                _diagnostic.ReportUndefinedBinaryOperationFor(left.ReturnedType, right.ReturnedType, operation.Value, bin.OperatorToken.Location);
+                
+                return left;
             }
 
-            return new ResolvedBinaryExpression(resolvedLeft, operation.Value, resolvedRight);
+            return new ResolvedBinaryExpression(left, operation.Value, right);
         }
     }
 }

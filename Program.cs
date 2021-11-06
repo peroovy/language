@@ -8,30 +8,47 @@ namespace language
     {
         static void Main(string[] args)
         {
-            var lexer = new Lexer();
-            var parser = new Parser();
-            var resolver = new SemanticResolver();
-            var evaluator = new Evaluator();
-
             while (true)
             {
                 Console.Write(">> ");
-                var code = Console.ReadLine();
+                var code = new SourceCode(Console.ReadLine());
 
-                var tokens = lexer.Tokenize(code);
-                var expression = parser.Parse(tokens);
-                var resolvedExpression = resolver.Resolve(expression);
-                var value = evaluator.Evaluate(resolvedExpression);
+                var lexer = new Lexer(code);
+                var parser = new Parser(code, lexer.Tokenize());
+                var resolver = new SemanticResolver(code, parser.Parse());
+                var evaluator = new Evaluator(code, resolver.Resolve());
 
-                var errors = lexer.Errors.Concat(parser.Errors).Concat(resolver.Errors).Concat(evaluator.Errors);
+                var value = evaluator.Evaluate();
+
+                var errors = lexer.Errors
+                    .Concat(parser.Errors)
+                    .Concat(resolver.Errors)
+                    .Concat(evaluator.Errors);
 
                 if (!errors.Any())
                     Console.WriteLine(value);
 
-                Console.ForegroundColor = ConsoleColor.DarkRed;
+                
                 foreach (var error in errors)
-                    Console.WriteLine(error);
-                Console.ResetColor();
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine(error.Message);
+
+                    Console.Write(new string(' ', 6));
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(error.Code.Substring(0, error.Span.Start));
+
+                    Console.BackgroundColor = ConsoleColor.DarkRed;
+                    var a = error.Code.Length;
+                    Console.Write(error.Code.Substring(error.Span.Start, error.Span.Length));
+                    Console.ResetColor();
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(error.Code.Substring(error.Span.End));
+
+                    Console.ResetColor();
+                    Console.WriteLine();
+                }              
             }
         }
     }

@@ -6,22 +6,23 @@ namespace Translator
 {
     internal sealed class Parser
     {
-        private List<Token> _tokens;
         private int _position;
+        private readonly IReadOnlyList<Token> _tokens;
 
-        private readonly List<string> _errors = new List<string>();
+        private readonly Diagnostic _diagnostic;
 
-        public Expression Parse(List<Token> tokens)
+        public Parser(SourceCode code, IReadOnlyList<Token> tokens)
         {
             _tokens = tokens;
-            _position = 0;
-            _errors.Clear();
-
-            return ParseBinaryExpression();
+            _diagnostic = new Diagnostic(code);
         }
 
-        // TODO: temp
-        public IEnumerable<string> Errors => _errors;
+        public IEnumerable<Error> Errors => _diagnostic.Errors;
+
+        public Expression Parse()
+        {
+            return ParseBinaryExpression();
+        }
 
         private Token Current => _position < _tokens.Count ? _tokens[_position] : _tokens.Last();
 
@@ -38,9 +39,9 @@ namespace Translator
             if (Current.Type == type)
                 return NextToken();
 
-            _errors.Add($"ERROR: Expected '{type}', but was '{Current.Type}' in line {Current.NumberLine} on position {Current.Position}");
+            _diagnostic.ReportUnexpectedTokenError(Current.Type, type, Current.Location);
 
-            return new Token(type, null, Current.Position, Current.NumberLine);
+            return new Token(type, null, Current.Location);
         }
 
         private Expression ParseBinaryExpression(int parentPrecedence = 0)

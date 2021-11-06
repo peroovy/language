@@ -5,51 +5,41 @@ namespace Translator
 {
     internal sealed class Lexer
     {
-        private string _code;
+        private readonly Diagnostic _diagnostic;
+
         private int _position;
+        private readonly string _code;
 
-        private readonly List<string> _errors = new List<string>();
-
-        private Dictionary<char, TokenType> _terminals = new Dictionary<char, TokenType>
+        public Lexer(SourceCode code)
         {
-            ['+'] = TokenType.Plus,
-            ['-'] = TokenType.Minus,
-            ['*'] = TokenType.Star,
-            ['/'] = TokenType.Slash,
-            ['('] = TokenType.OpenParenthesis,
-            [')'] = TokenType.CloseParenthesis,
-            ['\0'] = TokenType.EOF,
-        };
+            _code = code.Text;
+            _diagnostic = new Diagnostic(code);
+        }
 
-        // TODO: temp
-        public IEnumerable<string> Errors => _errors;
+        public IEnumerable<Error> Errors => _diagnostic.Errors;
 
-        public List<Token> Tokenize(string code)
+        public List<Token> Tokenize()
         {
-            _code = code;
-            _position = 0;
-            _errors.Clear();
-
             var tokens = new List<Token>();
-            var index = 0;
-            var numberLine = 1;
+            var positionInLine = 0;
+            var numberLine = 0;
 
             Token token;
             do
             {
-                token = NextToken(index, numberLine);
+                token = NextToken(positionInLine, numberLine);
 
                 if (token.Type == TokenType.Unknown)
-                    _errors.Add($"ERROR: Unknown token '{token.Value}' in line {token.NumberLine} on position {token.Position}");
+                    _diagnostic.ReportUnknownTokenError(token.Value, token.Location);
 
                 if (token.Type == TokenType.LineSeparator)
                 {
-                    index = 0;
+                    positionInLine = 0;
                     numberLine++;
                 }
                 else
                 {
-                    index += token.Value.Length;
+                    positionInLine += token.Value.Length;
                 }
 
                 if (token.Type != TokenType.Space
@@ -72,35 +62,33 @@ namespace Translator
             return index < _code.Length ? _code[index] : '\0';
         }
 
-        private Token NextToken(int index, int numberLine)
+        private Token NextToken(int positionInLine, int numberLine)
         {
             if (char.IsDigit(Current))
-                return NextСoncatenatedToken(char.IsDigit, TokenType.Number, index, numberLine);
+                return NextСoncatenatedToken(char.IsDigit, TokenType.Number, positionInLine, numberLine);
 
             if (char.IsWhiteSpace(Current))
             {
                 if (Current == '\n')
                 {
                     _position++;
-                    return new Token(TokenType.LineSeparator, "\n", index, numberLine);
+                    return new Token(TokenType.LineSeparator, "\n", positionInLine, numberLine);
                 }
 
-                return NextСoncatenatedToken(character => char.IsWhiteSpace(character) && character != '\n',
-                    TokenType.Space, index, numberLine);
+                return NextСoncatenatedToken(
+                    character => char.IsWhiteSpace(character) && character != '\n',
+                    TokenType.Space, positionInLine, numberLine);
             }
 
             if (Current == '*' && Peek(1) == '*')
             {
                 _position += 2;
-                return new Token(TokenType.StarStar, "**", index, numberLine);
+                return new Token(TokenType.StarStar, "**", positionInLine, numberLine);
             }
 
-
-            var terminal = _terminals.TryGetValue(Current, out var type) 
-                ? new Token(type, Current.ToString(), index, numberLine)
-                : new Token(TokenType.Unknown, Current.ToString(), index, numberLine);
-
+            var terminal = new Token(Current.ToTokenType(), Current.ToString(), positionInLine, numberLine);
             _position++;
+
             return terminal;
         }
 
