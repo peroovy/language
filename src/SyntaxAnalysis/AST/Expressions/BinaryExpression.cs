@@ -9,6 +9,7 @@
             Right = right;
         }
 
+        public override SyntaxNodeKind Kind => SyntaxNodeKind.BinaryExpression;
         public Expression Left { get; }
         public Token OperatorToken { get; }
         public Expression Right { get; }

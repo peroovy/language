@@ -9,6 +9,7 @@
             CloseParenthesis = closeParenthesis;
         }
 
+        public override SyntaxNodeKind Kind => SyntaxNodeKind.ParenthesizedExpression;
         public Token OpenParenthesis { get; }
         public Expression Expression { get; }
         public Token CloseParenthesis { get; }

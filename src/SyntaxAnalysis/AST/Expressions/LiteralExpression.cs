@@ -4,9 +4,10 @@
     {
         public LiteralExpression(Token literal)
         {
-            Literal = literal;
+            Token = literal;
         }
 
-        public Token Literal { get; }
+        public override SyntaxNodeKind Kind => SyntaxNodeKind.LiteralExpression;
+        public Token Token { get; }
     }
 }

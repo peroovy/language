@@ -45,6 +45,16 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\SemanticAnalysis\OperationsInfo.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\Operations\BinaryOperation.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLiteralExpression.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\ResolvedNode.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\ResolvedNodeKind.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedParenthesizedExpression.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedUnaryExpression.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\Operations\UnaryOperation.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\BinaryExpression.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\Expression.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\LiteralExpression.cs" />
@@ -53,15 +63,15 @@
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\UnaryExpression.cs" />
     <Compile Include="src\Evaluator.cs" />
     <Compile Include="src\LexemAnalysis\Lexer.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\SyntaxNodeKind.cs" />
     <Compile Include="src\SyntaxAnalysis\OperatorsInfo.cs" />
     <Compile Include="src\SyntaxAnalysis\Parser.cs" />
-    <Compile Include="src\SemanticAnalysis\SemanticResolution.cs" />
+    <Compile Include="src\SemanticAnalysis\SemanticResolver.cs" />
     <Compile Include="src\LexemAnalysis\Token\Token.cs" />
     <Compile Include="src\LexemAnalysis\Token\TokenType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="src\SemanticAnalysis\SRT\.gitkeep" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />

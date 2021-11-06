@@ -1,57 +1,99 @@
 ﻿using System;
-using Translator.AST;
+using System.Collections.Generic;
+using Translator.SRT;
 
 namespace Translator
 {
     internal sealed class Evaluator
     {
-        public int Evaluate(Expression expression)
+        private readonly List<string> _errors = new List<string>();
+
+        public IEnumerable<string> Errors => _errors;
+
+        public int? Evaluate(ResolvedExpression expression)
         {
-            if (expression is LiteralExpression number)
-                return int.TryParse(number.Literal.Value, out var result) ? result : 0;
+            _errors.Clear();
 
-            if (expression is ParenthesizedExpression p)
-                return Evaluate(p.Expression);
+            return EvaluateExpression(expression);
+        }
 
-            if (expression is UnaryExpression un)
+        public int? EvaluateExpression(ResolvedExpression expression)
+        {
+            switch (expression.Kind)
             {
-                switch (un.OperatorToken.Type)
-                {
-                    case TokenType.Plus:
-                        return Evaluate(un.Operand);
+                case ResolvedNodeKind.LiteralExpression:
+                    return EvaluateLiteralExpression((ResolvedLiteralExpression)expression);
 
-                    case TokenType.Minus:
-                        return -Evaluate(un.Operand);
-                }
+                case ResolvedNodeKind.ParenthesizedExpression:
+                    return Evaluate((expression as ResolvedParenthesizedExpression).Expression);
+
+                case ResolvedNodeKind.UnaryExpression:
+                    return EvaluateUnaryExpression((ResolvedUnaryExpression)expression);
+
+                case ResolvedNodeKind.BinaryExpression:
+                    return EvaluateBinaryExpression((ResolvedBinaryExpression)expression);
             }
 
-            if (expression is BinaryExpression bin)
+            throw new Exception($"Unknown expression's type '{expression.Kind}'");
+        }
+
+        private int? EvaluateLiteralExpression(ResolvedLiteralExpression literal)
+        {
+            if (literal.ReturnedType == typeof(int) && int.TryParse(literal.Value, out var value))
+                return value;
+
+            return null;
+        }
+
+        private int? EvaluateUnaryExpression(ResolvedUnaryExpression unary)
+        {
+            switch (unary.Operation)
             {
-                var left = Evaluate(bin.Left);
-                var right = Evaluate(bin.Right);
+                case UnaryOperation.Positive:
+                    return Evaluate(unary.Operand);
 
-                switch (bin.OperatorToken.Type)
-                {
-                    case TokenType.Plus:
-                        return left + right;
-
-                    case TokenType.Minus:
-                        return left - right;
-
-                    case TokenType.Star:
-                        return left * right;
-
-                    case TokenType.Slash:
-                        return left / right;
-
-                    case TokenType.StarStar:
-                        return (int)Math.Pow(left, right);
-                }
-
-                return left;
+                case UnaryOperation.Negation:
+                    return -Evaluate(unary.Operand);
             }
 
-            return 0;
+            throw new Exception($"Unknown unary operation's type '{unary.Operation}'");
+        }
+
+        private int? EvaluateBinaryExpression(ResolvedBinaryExpression bin)
+        {
+            var left = Evaluate(bin.Left);
+            var right = Evaluate(bin.Right);
+
+            if (left is null || right is null)
+                return null;
+
+            switch (bin.Operation)
+            {
+                case BinaryOperation.Addition:
+                    return left + right;
+
+                case BinaryOperation.Subtraction:
+                    return left - right;
+
+                case BinaryOperation.Multiplication:
+                    return left * right;
+
+                case BinaryOperation.Division:
+                {
+                    if (right == 0)
+                    {
+                        _errors.Add($"ERROR: Division by zero");
+                        return null;
+                    }
+
+                    return left / right;
+                }
+
+                case BinaryOperation.Exponentiation:
+                    return (int)Math.Pow((int)left, (int)right);
+            }
+
+            throw new Exception($"Unknown binary operation's type '{bin.Operation}'");
         }
     }
 }

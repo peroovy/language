@@ -8,6 +8,7 @@
             Operand = operand;
         }
 
+        public override SyntaxNodeKind Kind => SyntaxNodeKind.UnaryExpression;
         public Token OperatorToken { get; }
         public Expression Operand { get; }
     }

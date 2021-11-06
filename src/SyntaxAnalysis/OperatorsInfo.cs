@@ -1,4 +1,4 @@
-﻿namespace Translator
+﻿namespace Translator.AST
 {
     internal static class OperatorsInfo
     {
