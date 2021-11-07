@@ -2,9 +2,9 @@
 {
     internal sealed class LiteralExpression : Expression
     {
-        public LiteralExpression(Token literal)
+        public LiteralExpression(Token token)
         {
-            Token = literal;
+            Token = token;
         }
 
         public override SyntaxNodeKind Kind => SyntaxNodeKind.LiteralExpression;

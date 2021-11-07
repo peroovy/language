@@ -87,6 +87,14 @@ namespace Translator
 
                     return new ParenthesizedExpression(openParenthesis, expression, closeParenthesis);
                 }
+
+                case TokenType.TrueKeyword:
+                case TokenType.FalseKeyword:
+                {
+                    var boolean = NextToken();
+
+                    return new LiteralExpression(boolean);
+                }
             }
 
             var number = MatchToken(TokenType.Number);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Translator
 {
@@ -62,23 +63,27 @@ namespace Translator
             return index < _code.Length ? _code[index] : '\0';
         }
 
+        private string NextValue(Func<char, bool> predicate)
+        {
+            var value = new string(_code
+                    .TakeWhile(_position, predicate)
+                    .ToArray());
+
+            _position += value.Length;
+
+            return value;
+        }
+
         private Token NextToken(int positionInLine, int numberLine)
         {
             if (char.IsDigit(Current))
-                return NextСoncatenatedToken(char.IsDigit, TokenType.Number, positionInLine, numberLine);
+                return NextNumberToken(positionInLine, numberLine);
+
+            if (char.IsLetter(Current) || Current == '_')
+                return NextWordToken(positionInLine, numberLine);
 
             if (char.IsWhiteSpace(Current))
-            {
-                if (Current == '\n')
-                {
-                    _position++;
-                    return new Token(TokenType.LineSeparator, "\n", positionInLine, numberLine);
-                }
-
-                return NextСoncatenatedToken(
-                    character => char.IsWhiteSpace(character) && character != '\n',
-                    TokenType.Space, positionInLine, numberLine);
-            }
+                return NextWhitespaceToken(positionInLine, numberLine);
 
             if (Current == '*' && Peek(1) == '*')
             {
@@ -86,24 +91,41 @@ namespace Translator
                 return new Token(TokenType.StarStar, "**", positionInLine, numberLine);
             }
 
-            var terminal = new Token(Current.ToTokenType(), Current.ToString(), positionInLine, numberLine);
+            var terminal = new Token(Current.GetSingleTerminal(), Current.ToString(), positionInLine, numberLine);
             _position++;
 
             return terminal;
         }
 
-        private Token NextСoncatenatedToken(
-            Func<char, bool> predicate,
-            TokenType type, int index, int numberLine)
+        private Token NextNumberToken(int positionInLine, int numberLine)
         {
-            var start = _position;
+            var value = NextValue(char.IsDigit);
 
-            while (predicate(Current))
+            return new Token(TokenType.Number, value, positionInLine, numberLine);
+        }
+
+        private Token NextWordToken(int positionInLine, int numberLine)
+        {
+            var value = NextValue(sym => char.IsLetter(sym) || sym == '_');
+
+            var type = value.GetKeywordType();
+            if (type == TokenType.Unknown)
+                type = TokenType.Identifier;
+
+            return new Token(type, value, positionInLine, numberLine);
+        }
+
+        private Token NextWhitespaceToken(int positionInLine, int numberLine)
+        {
+            if (Current == '\n')
+            {
                 _position++;
+                return new Token(TokenType.LineSeparator, "\n", positionInLine, numberLine);
+            }
 
-            var length = _position - start;
+            var value = NextValue(sym => char.IsWhiteSpace(sym) && sym != '\n');
 
-            return new Token(type, _code.Substring(start, length), index, numberLine);
+            return new Token(TokenType.Space, value, positionInLine, numberLine);
         }
     }
 }

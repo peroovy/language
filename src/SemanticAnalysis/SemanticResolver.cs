@@ -50,6 +50,10 @@ namespace Translator
             {
                 case TokenType.Number:
                     return new ResolvedLiteralExpression(literal.Token.Value, typeof(int));
+
+                case TokenType.TrueKeyword:
+                case TokenType.FalseKeyword:
+                    return new ResolvedLiteralExpression(literal.Token.Value, typeof(bool));
             }
 
             throw new Exception($"{literal.Kind} '{literal.Token.Value}' is not resolved");

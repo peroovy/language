@@ -18,12 +18,12 @@ namespace Translator
 
         public IEnumerable<Error> Errors => _diagnostic.Errors;
 
-        public int? Evaluate()
+        public object Evaluate()
         {
             return EvaluateExpression(_expression);
         }
 
-        public int? EvaluateExpression(ResolvedExpression expression)
+        public object EvaluateExpression(ResolvedExpression expression)
         {
             switch (expression.Kind)
             {
@@ -43,15 +43,18 @@ namespace Translator
             throw new Exception($"Unknown expression's type '{expression.Kind}'");
         }
 
-        private int? EvaluateLiteralExpression(ResolvedLiteralExpression literal)
+        private object EvaluateLiteralExpression(ResolvedLiteralExpression literal)
         {
-            if (literal.ReturnedType == typeof(int) && int.TryParse(literal.Value, out var value))
-                return value;
+            if (literal.ReturnedType == typeof(int))
+                return int.TryParse(literal.Value, out var value) ? value : 0;
 
-            return null;
+            if (literal.ReturnedType == typeof(bool))
+                return bool.TryParse(literal.Value, out var value) ? value : false;
+
+            throw new Exception($"Unknown literal {literal.Kind}'");
         }
 
-        private int? EvaluateUnaryExpression(ResolvedUnaryExpression unary)
+        private object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
         {
             switch (unary.Operation)
             {
@@ -59,13 +62,13 @@ namespace Translator
                     return EvaluateExpression(unary.Operand);
 
                 case UnaryOperation.Negation:
-                    return -EvaluateExpression(unary.Operand);
+                    return -(int)EvaluateExpression(unary.Operand);
             }
 
             throw new Exception($"Unknown unary operation's type '{unary.Operation}'");
         }
 
-        private int? EvaluateBinaryExpression(ResolvedBinaryExpression bin)
+        private object EvaluateBinaryExpression(ResolvedBinaryExpression bin)
         {
             var left = EvaluateExpression(bin.Left);
             var right = EvaluateExpression(bin.Right);
@@ -76,24 +79,24 @@ namespace Translator
             switch (bin.Operation)
             {
                 case BinaryOperation.Addition:
-                    return left + right;
+                    return (int)left + (int)right;
 
                 case BinaryOperation.Subtraction:
-                    return left - right;
+                    return (int)left - (int)right;
 
                 case BinaryOperation.Multiplication:
-                    return left * right;
+                    return (int)left * (int)right;
 
                 case BinaryOperation.Division:
                 {
-                    if (right == 0)
+                    if ((int)right == 0)
                     {
                         // _diagnostic.ReportDivisionByZero();
 
                         return null;
                     }
 
-                    return left / right;
+                    return (int)left / (int)right;
                 }
 
                 case BinaryOperation.Exponentiation:
