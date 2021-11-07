@@ -18,28 +18,28 @@ namespace Translator
 
         public void ReportUnknownTokenError(string name, TextLocation location)
         {
-            var message = $"ERROR: Unknown token '{name}' in line {location.NumberLine} on position {location.Span.Start}";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Unknown token '{name}'";
 
             Report(message, location);
         }
 
         public void ReportUnexpectedTokenError(TokenType actual, TokenType expected, TextLocation location)
         {
-            var message = $"ERROR: Expected '{expected}', but was '{actual}' in line {location.NumberLine} on position {location.Span.Start}";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Expected '{expected}', but was '{actual}'";
 
             Report(message, location);
         }
 
         public void ReportUndefinedUnaryOperationFor(Type type, UnaryOperation operation, TextLocation location)
         {
-            var message = $"ERROR: The unary operation '{operation}' is not defined for type '{type}' in line {location.NumberLine} on position {location.Span.Start}";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The unary operation '{operation}' is not defined for type '{type}'";
 
             Report(message, location);
         }
 
         public void ReportUndefinedBinaryOperationFor(Type left, Type right, BinaryOperation operation, TextLocation location)
         {
-            var message = $"ERROR: The binary operator '{operation}' is not defined for types '{left}' and '{right}' in line {location.NumberLine} on position {location.Span.Start}";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operator '{operation}' is not defined for types '{left}' and '{right}'";
 
             Report(message, location);
         }
