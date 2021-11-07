@@ -8,7 +8,8 @@ namespace Translator.SRT
             new Dictionary<TokenType, UnaryOperation>
         {
             [TokenType.Plus] = UnaryOperation.Positive,
-            [TokenType.Minus] = UnaryOperation.Negation
+            [TokenType.Minus] = UnaryOperation.Negation,
+            [TokenType.Bang] = UnaryOperation.LogicalNegation
         };
 
         private static readonly Dictionary<TokenType, BinaryOperation> _binaryOperatorsBindings = 
@@ -18,7 +19,9 @@ namespace Translator.SRT
             [TokenType.Minus] = BinaryOperation.Subtraction,
             [TokenType.Star] = BinaryOperation.Multiplication,
             [TokenType.Slash] = BinaryOperation.Division,
-            [TokenType.StarStar] = BinaryOperation.Exponentiation
+            [TokenType.DoubleStar] = BinaryOperation.Exponentiation,
+            [TokenType.DoubleOpersand] = BinaryOperation.LogicalAnd,
+            [TokenType.DoubleVerticalBar] = BinaryOperation.LogicalOr
         };
 
         public static UnaryOperation? ToUnaryOperation(this TokenType type) => 

@@ -4,7 +4,7 @@ namespace Translator
 {
     internal static class TokenInfo
     {
-        private static readonly Dictionary<char, TokenType> _terminals = 
+        private static readonly Dictionary<char, TokenType> _singleTerminals = 
             new Dictionary<char, TokenType>
         {
             ['+'] = TokenType.Plus,
@@ -13,27 +13,34 @@ namespace Translator
             ['/'] = TokenType.Slash,
             ['('] = TokenType.OpenParenthesis,
             [')'] = TokenType.CloseParenthesis,
+            ['!'] = TokenType.Bang,
             ['\0'] = TokenType.EOF,
+        };
+
+        private static readonly Dictionary<string, TokenType> _doubleTerminals =
+            new Dictionary<string, TokenType>
+        {
+            ["**"] = TokenType.DoubleStar,
+            ["&&"] = TokenType.DoubleOpersand,
+            ["||"] = TokenType.DoubleVerticalBar
         };
 
         private static readonly Dictionary<string, TokenType> _keywords =
             new Dictionary<string, TokenType>
-            {
-                ["true"] = TokenType.TrueKeyword,
-                ["false"] = TokenType.FalseKeyword
-            };
-
-        public static TokenType GetSingleTerminal(this char sym)
         {
-            if (_terminals.TryGetValue(sym, out var type))
-                return type;
+            ["true"] = TokenType.TrueKeyword,
+            ["false"] = TokenType.FalseKeyword
+        };
 
-            return TokenType.Unknown;
-        }
+        public static TokenType GetSingleType(this char sym) => GetType(sym, _singleTerminals);
 
-        public static TokenType GetKeywordType(this string str)
+        public static TokenType GetDoubleType(this string str) => GetType(str, _doubleTerminals);
+
+        public static TokenType GetKeywordType(this string str) => GetType(str, _keywords);
+
+        private static TokenType GetType<TKey>(TKey key, Dictionary<TKey, TokenType> bindings)
         {
-            if (_keywords.TryGetValue(str, out var type))
+            if (bindings.TryGetValue(key, out var type))
                 return type;
 
             return TokenType.Unknown;

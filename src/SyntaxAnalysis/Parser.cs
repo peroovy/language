@@ -48,10 +48,11 @@ namespace Translator
         {
             Expression left;
 
-            if (Current.Type.IsUnaryOperator())
+            var unaryPrecedence = Current.Type.GetUnaryOperatorPrecedence();
+            if (unaryPrecedence != null && unaryPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
-                var expression = ParseBinaryExpression(parentPrecedence + 1);
+                var expression = ParseBinaryExpression(unaryPrecedence.Value);
 
                 left = new UnaryExpression(operatorToken, expression);
             }

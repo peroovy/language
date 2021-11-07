@@ -85,16 +85,13 @@ namespace Translator
             if (char.IsWhiteSpace(Current))
                 return NextWhitespaceToken(positionInLine, numberLine);
 
-            if (Current == '*' && Peek(1) == '*')
-            {
-                _position += 2;
-                return new Token(TokenType.StarStar, "**", positionInLine, numberLine);
-            }
+            if (TryNextDoubleToken(positionInLine, numberLine, out var token))
+                return token;
 
-            var terminal = new Token(Current.GetSingleTerminal(), Current.ToString(), positionInLine, numberLine);
+            token = new Token(Current.GetSingleType(), Current.ToString(), positionInLine, numberLine);
             _position++;
 
-            return terminal;
+            return token;
         }
 
         private Token NextNumberToken(int positionInLine, int numberLine)
@@ -126,6 +123,21 @@ namespace Translator
             var value = NextValue(sym => char.IsWhiteSpace(sym) && sym != '\n');
 
             return new Token(TokenType.Space, value, positionInLine, numberLine);
+        }
+
+        private bool TryNextDoubleToken(int positionInLine, int numberLine, out Token token)
+        {
+            var value = new string(new[] { Peek(0), Peek(1) });
+            var type = value.GetDoubleType();
+            token = new Token(type, value, positionInLine, numberLine);
+
+            if (type != TokenType.Unknown)
+            {
+                _position += 2;
+                return true;
+            }
+
+            return false;
         }
     }
 }

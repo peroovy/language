@@ -68,20 +68,33 @@ namespace Translator
 
         private ResolvedExpression ResolveUnaryExpression(UnaryExpression unary)
         {
-            var resolvedOperand = ResolveExpression(unary.Operand);
+            var operand = ResolveExpression(unary.Operand);
             var operation = unary.OperatorToken.Type.ToUnaryOperation();
 
             if (operation is null)
-                throw new Exception($"The unary operator '{unary.OperatorToken.Value}' is not defined");
+                throw new Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
 
-            if (resolvedOperand.ReturnedType != typeof(int))
+            switch (operation)
             {
-                _diagnostic.ReportUndefinedUnaryOperationFor(resolvedOperand.ReturnedType, operation.Value, unary.OperatorToken.Location);
+                case UnaryOperation.Positive:
+                case UnaryOperation.Negation:
+                {
+                    if (operand.ReturnedType == typeof(int))
+                        return new ResolvedUnaryExpression(operation.Value, operand);
+                    break;
+                }
 
-                return resolvedOperand;
+                case UnaryOperation.LogicalNegation:
+                {
+                    if (operand.ReturnedType == typeof(bool))
+                        return new ResolvedUnaryExpression(operation.Value, operand);
+                    break;
+                }
             }
 
-            return new ResolvedUnaryExpression(operation.Value, resolvedOperand);
+            _diagnostic.ReportUndefinedUnaryOperationFor(operand.ReturnedType, operation.Value, unary.OperatorToken.Location);
+
+            return operand;
         }
 
         private ResolvedExpression ResolveBinaryExpression(BinaryExpression bin)
@@ -91,16 +104,32 @@ namespace Translator
             var operation = bin.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
-                throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not defined");
+                throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not resolved");
 
-            if (left.ReturnedType != typeof(int) || right.ReturnedType != typeof(int))
+            switch (operation)
             {
-                _diagnostic.ReportUndefinedBinaryOperationFor(left.ReturnedType, right.ReturnedType, operation.Value, bin.OperatorToken.Location);
-                
-                return left;
+                case BinaryOperation.Addition:
+                case BinaryOperation.Subtraction:
+                case BinaryOperation.Multiplication:
+                case BinaryOperation.Division:
+                {
+                    if (left.ReturnedType == typeof(int) && right.ReturnedType == typeof(int))
+                        return new ResolvedBinaryExpression(left, operation.Value, right);
+                    break;
+                }
+
+                case BinaryOperation.LogicalAnd:
+                case BinaryOperation.LogicalOr:
+                {
+                    if (left.ReturnedType == typeof(bool) && right.ReturnedType == typeof(bool))
+                        return new ResolvedBinaryExpression(left, operation.Value, right);
+                    break;
+                }
             }
 
-            return new ResolvedBinaryExpression(left, operation.Value, right);
+            _diagnostic.ReportUndefinedBinaryOperationFor(left.ReturnedType, right.ReturnedType, operation.Value, bin.OperatorToken.Location);
+
+            return left;
         }
     }
 }

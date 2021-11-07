@@ -6,6 +6,8 @@
         Subtraction,
         Multiplication,
         Division,
-        Exponentiation
+        Exponentiation,
+        LogicalAnd,
+        LogicalOr
     }
 }

@@ -63,6 +63,9 @@ namespace Translator
 
                 case UnaryOperation.Negation:
                     return -(int)EvaluateExpression(unary.Operand);
+
+                case UnaryOperation.LogicalNegation:
+                    return !(bool)EvaluateExpression(unary.Operand);
             }
 
             throw new Exception($"Unknown unary operation's type '{unary.Operation}'");
@@ -101,6 +104,12 @@ namespace Translator
 
                 case BinaryOperation.Exponentiation:
                     return (int)Math.Pow((int)left, (int)right);
+
+                case BinaryOperation.LogicalAnd:
+                    return (bool)left && (bool)right;
+
+                case BinaryOperation.LogicalOr:
+                    return (bool)left || (bool)right;
             }
 
             throw new Exception($"Unknown binary operation's type '{bin.Operation}'");

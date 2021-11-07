@@ -3,6 +3,7 @@
     internal enum UnaryOperation
     {
         Positive,
-        Negation
+        Negation,
+        LogicalNegation
     }
 }

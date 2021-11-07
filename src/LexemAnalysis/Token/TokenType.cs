@@ -7,11 +7,14 @@
 
         TrueKeyword,
         FalseKeyword,
+        DoubleOpersand,
+        DoubleVerticalBar,
+        Bang,
 
         Plus,
         Minus,
         Star,
-        StarStar,
+        DoubleStar,
         Slash,
         OpenParenthesis,
         CloseParenthesis,

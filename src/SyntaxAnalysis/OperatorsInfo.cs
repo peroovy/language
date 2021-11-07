@@ -2,30 +2,42 @@
 {
     internal static class OperatorsInfo
     {
-        public static int? GetBinaryOperatorPrecedence(this TokenType type)
+        public static int? GetUnaryOperatorPrecedence(this TokenType type)
         {
             switch (type)
             {
                 case TokenType.Plus:
                 case TokenType.Minus:
-                    return 1;
+                case TokenType.Bang:
+                    return 8;
+            }
+
+            return null;
+        }
+
+        public static int? GetBinaryOperatorPrecedence(this TokenType type)
+        {
+            switch (type)
+            {
+                case TokenType.DoubleStar:
+                    return 9;
 
                 case TokenType.Star:
                 case TokenType.Slash:
-                    return 2;
+                    return 7;
 
-                case TokenType.StarStar:
+                case TokenType.Plus:
+                case TokenType.Minus:
+                    return 6;
+
+                case TokenType.DoubleOpersand:
+                    return 4;
+
+                case TokenType.DoubleVerticalBar:
                     return 3;
-
-                default:
-                    return null;
             }
-        }
 
-        public static bool IsUnaryOperator(this TokenType type)
-        {
-            return type == TokenType.Plus
-                || type == TokenType.Minus;
+            return null;
         }
     }
 }
