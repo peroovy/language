@@ -13,17 +13,9 @@ namespace language
                 Console.Write(">> ");
                 var code = new SourceCode(Console.ReadLine());
 
-                var lexer = new Lexer(code);
-                var parser = new Parser(code, lexer.Tokenize());
-                var resolver = new SemanticResolver(code, parser.Parse());
-                var evaluator = new Evaluator(code, resolver.Resolve());
-
-                var value = evaluator.Evaluate();
-
-                var errors = lexer.Errors
-                    .Concat(parser.Errors)
-                    .Concat(resolver.Errors)
-                    .Concat(evaluator.Errors);
+                var compiler = new Compiler(code);
+                var value = compiler.Compile();
+                var errors = compiler.Errors;
 
                 if (!errors.Any())
                     Console.WriteLine(value);
@@ -39,7 +31,6 @@ namespace language
                     Console.Write(error.Code.Substring(0, error.Span.Start));
 
                     Console.BackgroundColor = ConsoleColor.DarkRed;
-                    var a = error.Code.Length;
                     Console.Write(error.Code.Substring(error.Span.Start, error.Span.Length));
                     Console.ResetColor();
 
