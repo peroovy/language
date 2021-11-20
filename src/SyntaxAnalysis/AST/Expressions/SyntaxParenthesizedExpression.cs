@@ -1,8 +1,8 @@
 ﻿namespace Translator.AST
 {
-    internal sealed class ParenthesizedExpression : Expression
+    internal sealed class SyntaxParenthesizedExpression : SyntaxExpression
     {
-        public ParenthesizedExpression(Token openParenthesis, Expression expression, Token closeParenthesis)
+        public SyntaxParenthesizedExpression(Token openParenthesis, SyntaxExpression expression, Token closeParenthesis)
         {
             OpenParenthesis = openParenthesis;
             Expression = expression;
@@ -11,7 +11,7 @@
 
         public override SyntaxNodeKind Kind => SyntaxNodeKind.ParenthesizedExpression;
         public Token OpenParenthesis { get; }
-        public Expression Expression { get; }
+        public SyntaxExpression Expression { get; }
         public Token CloseParenthesis { get; }
     }
 }

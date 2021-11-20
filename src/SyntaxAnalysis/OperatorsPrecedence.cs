@@ -1,6 +1,6 @@
 ﻿namespace Translator.AST
 {
-    internal static class OperatorsInfo
+    internal static class OperatorsPrecedence
     {
         public static int? GetUnaryOperatorPrecedence(this TokenType type)
         {

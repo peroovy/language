@@ -7,11 +7,11 @@ namespace Translator
 {
     internal sealed class SemanticResolver
     {
-        private readonly Expression _expression;
+        private readonly SyntaxExpression _expression;
 
         private readonly Diagnostic _diagnostic;
 
-        public SemanticResolver(SourceCode code, Expression expression)
+        public SemanticResolver(SourceCode code, SyntaxExpression expression)
         {
             _expression = expression;
             _diagnostic = new Diagnostic(code);
@@ -24,27 +24,27 @@ namespace Translator
             return ResolveExpression(_expression);
         }
 
-        private ResolvedExpression ResolveExpression(Expression expression)
+        private ResolvedExpression ResolveExpression(SyntaxExpression expression)
         {
             switch (expression.Kind)
             {
                 case SyntaxNodeKind.LiteralExpression:
-                    return ResolveLiteralExpression((LiteralExpression)expression);
+                    return ResolveLiteralExpression((SyntaxLiteralExpression)expression);
 
                 case SyntaxNodeKind.ParenthesizedExpression:
-                    return ResolveParenthesizedExpression((ParenthesizedExpression)expression);
+                    return ResolveParenthesizedExpression((SyntaxParenthesizedExpression)expression);
 
                 case SyntaxNodeKind.UnaryExpression:
-                    return ResolveUnaryExpression((UnaryExpression)expression);
+                    return ResolveUnaryExpression((SyntaxUnaryExpression)expression);
 
                 case SyntaxNodeKind.BinaryExpression:
-                    return ResolveBinaryExpression((BinaryExpression)expression);
+                    return ResolveBinaryExpression((SyntaxBinaryExpression)expression);
             }
 
             throw new Exception($"'{expression.Kind}' is not resolved");
         }
 
-        private ResolvedLiteralExpression ResolveLiteralExpression(LiteralExpression literal)
+        private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression literal)
         {
             switch (literal.Token.Type)
             {
@@ -59,75 +59,42 @@ namespace Translator
             throw new Exception($"{literal.Kind} '{literal.Token.Value}' is not resolved");
         }
 
-        private ResolvedParenthesizedExpression ResolveParenthesizedExpression(ParenthesizedExpression parentheses)
+        private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression parentheses)
         {
             var resolvedExpression = ResolveExpression(parentheses.Expression);
 
             return new ResolvedParenthesizedExpression(resolvedExpression);
         }
 
-        private ResolvedExpression ResolveUnaryExpression(UnaryExpression unary)
+        private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression unary)
         {
             var operand = ResolveExpression(unary.Operand);
-            var operation = unary.OperatorToken.Type.ToUnaryOperation();
+            var operation = UnaryOperation.Resolve(unary.OperatorToken.Type, operand);
 
             if (operation is null)
                 throw new Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
 
-            switch (operation)
-            {
-                case UnaryOperation.Positive:
-                case UnaryOperation.Negation:
-                {
-                    if (operand.ReturnedType == typeof(int))
-                        return new ResolvedUnaryExpression(operation.Value, operand);
-                    break;
-                }
+            if (operation.ReturnedType != null)
+                return new ResolvedUnaryExpression(operation, operand);
 
-                case UnaryOperation.LogicalNegation:
-                {
-                    if (operand.ReturnedType == typeof(bool))
-                        return new ResolvedUnaryExpression(operation.Value, operand);
-                    break;
-                }
-            }
-
-            _diagnostic.ReportUndefinedUnaryOperationFor(operand.ReturnedType, operation.Value, unary.OperatorToken.Location);
+            _diagnostic.ReportUndefinedUnaryOperationForType(operation, unary.OperatorToken.Location);
 
             return operand;
         }
 
-        private ResolvedExpression ResolveBinaryExpression(BinaryExpression bin)
+        private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression bin)
         {
             var left = ResolveExpression(bin.Left);
             var right = ResolveExpression(bin.Right);
-            var operation = bin.OperatorToken.Type.ToBinaryOperation();
+            var operation = BinaryOperation.Resove(bin.OperatorToken.Type, left, right);
 
             if (operation is null)
                 throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not resolved");
 
-            switch (operation)
-            {
-                case BinaryOperation.Addition:
-                case BinaryOperation.Subtraction:
-                case BinaryOperation.Multiplication:
-                case BinaryOperation.Division:
-                {
-                    if (left.ReturnedType == typeof(int) && right.ReturnedType == typeof(int))
-                        return new ResolvedBinaryExpression(left, operation.Value, right);
-                    break;
-                }
+            if (operation.ReturnedType != null)
+                return new ResolvedBinaryExpression(left, operation, right);
 
-                case BinaryOperation.LogicalAnd:
-                case BinaryOperation.LogicalOr:
-                {
-                    if (left.ReturnedType == typeof(bool) && right.ReturnedType == typeof(bool))
-                        return new ResolvedBinaryExpression(left, operation.Value, right);
-                    break;
-                }
-            }
-
-            _diagnostic.ReportUndefinedBinaryOperationFor(left.ReturnedType, right.ReturnedType, operation.Value, bin.OperatorToken.Location);
+            _diagnostic.ReportUndefinedBinaryOperationForTypes(operation, bin.OperatorToken.Location);
 
             return left;
         }

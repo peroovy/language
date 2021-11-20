@@ -30,16 +30,16 @@ namespace Translator
             Report(message, location);
         }
 
-        public void ReportUndefinedUnaryOperationFor(Type type, UnaryOperation operation, TextLocation location)
+        public void ReportUndefinedUnaryOperationForType(UnaryOperation operation, TextLocation location)
         {
-            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The unary operation '{operation}' is not defined for type '{type}'";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The unary operation '{operation.Kind}' is not defined for type '{operation.OperandType}'";
 
             Report(message, location);
         }
 
-        public void ReportUndefinedBinaryOperationFor(Type left, Type right, BinaryOperation operation, TextLocation location)
+        public void ReportUndefinedBinaryOperationForTypes(BinaryOperation operation, TextLocation location)
         {
-            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operator '{operation}' is not defined for types '{left}' and '{right}'";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operation '{operation.Kind}' is not defined for types '{operation.LeftType}' and '{operation.RightType}'";
 
             Report(message, location);
         }

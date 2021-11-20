@@ -1,8 +1,8 @@
 ﻿namespace Translator.AST
 {
-    internal sealed class UnaryExpression : Expression
+    internal sealed class SyntaxUnaryExpression : SyntaxExpression
     {
-        public UnaryExpression(Token operatorToken, Expression operand)
+        public SyntaxUnaryExpression(Token operatorToken, SyntaxExpression operand)
         {
             OperatorToken = operatorToken;
             Operand = operand;
@@ -10,6 +10,6 @@
 
         public override SyntaxNodeKind Kind => SyntaxNodeKind.UnaryExpression;
         public Token OperatorToken { get; }
-        public Expression Operand { get; }
+        public SyntaxExpression Operand { get; }
     }
 }

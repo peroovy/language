@@ -1,8 +1,8 @@
 ﻿namespace Translator.AST
 {
-    internal sealed class LiteralExpression : Expression
+    internal sealed class SyntaxLiteralExpression : SyntaxExpression
     {
-        public LiteralExpression(Token token)
+        public SyntaxLiteralExpression(Token token)
         {
             Token = token;
         }

@@ -1,6 +1,6 @@
 ﻿namespace Translator.SRT
 {
-    internal enum UnaryOperation
+    internal enum UnaryOperationKind
     {
         Positive,
         Negation,

@@ -13,8 +13,7 @@ namespace Translator.SRT
         }
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.BinaryExpression;
-        // TODO: returned type is temp
-        public override Type ReturnedType => Left.ReturnedType;
+        public override Type ReturnedType => Operation.ReturnedType;
         public ResolvedExpression Left { get; }
         public BinaryOperation Operation { get; }
         public ResolvedExpression Right { get; }

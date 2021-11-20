@@ -11,7 +11,7 @@ namespace Translator.SRT
         }
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.UnaryExpression;
-        public override Type ReturnedType => Operand.ReturnedType;
+        public override Type ReturnedType => Operation.ReturnedType;
         public UnaryOperation Operation { get; }
         public ResolvedExpression Operand { get; }
     }

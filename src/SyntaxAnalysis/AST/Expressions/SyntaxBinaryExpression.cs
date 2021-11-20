@@ -1,8 +1,8 @@
 ﻿namespace Translator.AST
 {
-    internal sealed class BinaryExpression : Expression
+    internal sealed class SyntaxBinaryExpression : SyntaxExpression
     {
-        public BinaryExpression(Expression left, Token operatorToken, Expression right)
+        public SyntaxBinaryExpression(SyntaxExpression left, Token operatorToken, SyntaxExpression right)
         {
             Left = left;
             OperatorToken = operatorToken;
@@ -10,8 +10,8 @@
         }
 
         public override SyntaxNodeKind Kind => SyntaxNodeKind.BinaryExpression;
-        public Expression Left { get; }
+        public SyntaxExpression Left { get; }
         public Token OperatorToken { get; }
-        public Expression Right { get; }
+        public SyntaxExpression Right { get; }
     }
 }

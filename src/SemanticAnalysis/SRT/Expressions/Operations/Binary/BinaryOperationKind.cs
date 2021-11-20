@@ -1,6 +1,6 @@
 ﻿namespace Translator.SRT
 {
-    internal enum BinaryOperation
+    internal enum BinaryOperationKind
     {
         Addition,
         Subtraction,

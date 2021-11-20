@@ -56,15 +56,15 @@ namespace Translator
 
         private object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
         {
-            switch (unary.Operation)
+            switch (unary.Operation.Kind)
             {
-                case UnaryOperation.Positive:
+                case UnaryOperationKind.Positive:
                     return EvaluateExpression(unary.Operand);
 
-                case UnaryOperation.Negation:
+                case UnaryOperationKind.Negation:
                     return -(int)EvaluateExpression(unary.Operand);
 
-                case UnaryOperation.LogicalNegation:
+                case UnaryOperationKind.LogicalNegation:
                     return !(bool)EvaluateExpression(unary.Operand);
             }
 
@@ -79,18 +79,18 @@ namespace Translator
             if (left is null || right is null)
                 return null;
 
-            switch (bin.Operation)
+            switch (bin.Operation.Kind)
             {
-                case BinaryOperation.Addition:
+                case BinaryOperationKind.Addition:
                     return (int)left + (int)right;
 
-                case BinaryOperation.Subtraction:
+                case BinaryOperationKind.Subtraction:
                     return (int)left - (int)right;
 
-                case BinaryOperation.Multiplication:
+                case BinaryOperationKind.Multiplication:
                     return (int)left * (int)right;
 
-                case BinaryOperation.Division:
+                case BinaryOperationKind.Division:
                 {
                     if ((int)right == 0)
                     {
@@ -102,13 +102,13 @@ namespace Translator
                     return (int)left / (int)right;
                 }
 
-                case BinaryOperation.Exponentiation:
+                case BinaryOperationKind.Exponentiation:
                     return (int)Math.Pow((int)left, (int)right);
 
-                case BinaryOperation.LogicalAnd:
+                case BinaryOperationKind.LogicalAnd:
                     return (bool)left && (bool)right;
 
-                case BinaryOperation.LogicalOr:
+                case BinaryOperationKind.LogicalOr:
                     return (bool)left || (bool)right;
             }
 

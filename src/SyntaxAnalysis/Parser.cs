@@ -19,7 +19,7 @@ namespace Translator
 
         public IEnumerable<Error> Errors => _diagnostic.Errors;
 
-        public Expression Parse()
+        public SyntaxExpression Parse()
         {
             return ParseBinaryExpression();
         }
@@ -44,9 +44,9 @@ namespace Translator
             return new Token(type, null, Current.Location);
         }
 
-        private Expression ParseBinaryExpression(int parentPrecedence = 0)
+        private SyntaxExpression ParseBinaryExpression(int parentPrecedence = 0)
         {
-            Expression left;
+            SyntaxExpression left;
 
             var unaryPrecedence = Current.Type.GetUnaryOperatorPrecedence();
             if (unaryPrecedence != null && unaryPrecedence >= parentPrecedence)
@@ -54,7 +54,7 @@ namespace Translator
                 var operatorToken = NextToken();
                 var expression = ParseBinaryExpression(unaryPrecedence.Value);
 
-                left = new UnaryExpression(operatorToken, expression);
+                left = new SyntaxUnaryExpression(operatorToken, expression);
             }
             else
             {
@@ -70,13 +70,13 @@ namespace Translator
                 var operatorToken = NextToken();
                 var right = ParseBinaryExpression(precedence.Value);
 
-                left = new BinaryExpression(left, operatorToken, right);
+                left = new SyntaxBinaryExpression(left, operatorToken, right);
             }
 
             return left;
         }
 
-        private Expression ParsePrimaryExpression()
+        private SyntaxExpression ParsePrimaryExpression()
         {
             switch (Current.Type)
             {
@@ -86,7 +86,7 @@ namespace Translator
                     var expression = ParseBinaryExpression();
                     var closeParenthesis = MatchToken(TokenType.CloseParenthesis);
 
-                    return new ParenthesizedExpression(openParenthesis, expression, closeParenthesis);
+                    return new SyntaxParenthesizedExpression(openParenthesis, expression, closeParenthesis);
                 }
 
                 case TokenType.TrueKeyword:
@@ -94,12 +94,12 @@ namespace Translator
                 {
                     var boolean = NextToken();
 
-                    return new LiteralExpression(boolean);
+                    return new SyntaxLiteralExpression(boolean);
                 }
             }
 
             var number = MatchToken(TokenType.Number);
-            return new LiteralExpression(number);
+            return new SyntaxLiteralExpression(number);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Translator
 {
-    internal static class TokenInfo
+    internal static class TokenTypesBinder
     {
         private static readonly Dictionary<char, TokenType> _singleTerminals = 
             new Dictionary<char, TokenType>
