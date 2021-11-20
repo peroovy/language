@@ -13,9 +13,11 @@ namespace language
                 Console.Write(">> ");
                 var code = new SourceCode(Console.ReadLine());
 
-                var compiler = new Compiler(code);
-                var value = compiler.Compile();
-                var errors = compiler.Errors;
+                var compiler = new Compiler();
+                var compilation = compiler.Compile(code);
+
+                var value = compilation.Representation;
+                var errors = compilation.Errors;
 
                 if (!errors.Any())
                     Console.WriteLine(value);

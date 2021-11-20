@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Translator.AST;
 using Translator.SRT;
 
@@ -7,21 +6,15 @@ namespace Translator
 {
     internal sealed class SemanticResolver
     {
-        private readonly SyntaxExpression _expression;
+        private Diagnostic _diagnostic;
 
-        private readonly Diagnostic _diagnostic;
-
-        public SemanticResolver(SourceCode code, SyntaxExpression expression)
+        public CompilationState<ResolvedExpression> Resolve(SourceCode code, SyntaxExpression expression)
         {
-            _expression = expression;
             _diagnostic = new Diagnostic(code);
-        }
 
-        public IEnumerable<Error> Errors => _diagnostic.Errors;
+            var expr = ResolveExpression(expression);
 
-        public ResolvedExpression Resolve()
-        {
-            return ResolveExpression(_expression);
+            return new CompilationState<ResolvedExpression>(expr, _diagnostic.Errors);
         }
 
         private ResolvedExpression ResolveExpression(SyntaxExpression expression)

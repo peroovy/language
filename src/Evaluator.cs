@@ -1,26 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using Translator.SRT;
 
 namespace Translator
 {
     internal sealed class Evaluator
     {
-        private readonly ResolvedExpression _expression;
-
-        private readonly Diagnostic _diagnostic;
-
-        public Evaluator(SourceCode code, ResolvedExpression expression)
+        public object Evaluate(ResolvedExpression expression)
         {
-            _expression = expression;
-            _diagnostic = new Diagnostic(code);
-        }
-
-        public IEnumerable<Error> Errors => _diagnostic.Errors;
-
-        public object Evaluate()
-        {
-            return EvaluateExpression(_expression);
+            return EvaluateExpression(expression);
         }
 
         public object EvaluateExpression(ResolvedExpression expression)
@@ -93,11 +80,7 @@ namespace Translator
                 case BinaryOperationKind.Division:
                 {
                     if ((int)right == 0)
-                    {
-                        // _diagnostic.ReportDivisionByZero();
-
                         return null;
-                    }
 
                     return (int)left / (int)right;
                 }

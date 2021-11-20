@@ -6,41 +6,39 @@ namespace Translator
 {
     internal sealed class Lexer
     {
-        private readonly Diagnostic _diagnostic;
-
+        private string _code;
         private int _position;
-        private readonly string _code;
 
-        public Lexer(SourceCode code)
+        private int _positionInLine;
+        private int _numberLine;
+
+        private Diagnostic _diagnostic;
+
+        public CompilationState<IReadOnlyList<Token>> Tokenize(SourceCode code)
         {
-            _code = code.Text;
             _diagnostic = new Diagnostic(code);
-        }
+            _code = code.Text;
+            _positionInLine = 0;
+            _numberLine = 0;
 
-        public IEnumerable<Error> Errors => _diagnostic.Errors;
-
-        public List<Token> Tokenize()
-        {
             var tokens = new List<Token>();
-            var positionInLine = 0;
-            var numberLine = 0;
 
             Token token;
             do
             {
-                token = NextToken(positionInLine, numberLine);
+                token = NextToken();
 
                 if (token.Type == TokenType.Unknown)
                     _diagnostic.ReportUnknownTokenError(token.Value, token.Location);
 
                 if (token.Type == TokenType.LineSeparator)
                 {
-                    positionInLine = 0;
-                    numberLine++;
+                    _positionInLine = 0;
+                    _numberLine++;
                 }
                 else
                 {
-                    positionInLine += token.Value.Length;
+                    _positionInLine += token.Value.Length;
                 }
 
                 if (token.Type != TokenType.Space
@@ -51,7 +49,7 @@ namespace Translator
 
             } while (token.Type != TokenType.EOF);
 
-            return tokens;
+            return new CompilationState<IReadOnlyList<Token>>(tokens, _diagnostic.Errors);
         }
 
         private char Current => Peek(0);
@@ -74,34 +72,34 @@ namespace Translator
             return value;
         }
 
-        private Token NextToken(int positionInLine, int numberLine)
+        private Token NextToken()
         {
             if (char.IsDigit(Current))
-                return NextNumberToken(positionInLine, numberLine);
+                return NextNumberToken();
 
             if (char.IsLetter(Current) || Current == '_')
-                return NextWordToken(positionInLine, numberLine);
+                return NextWordToken();
 
             if (char.IsWhiteSpace(Current))
-                return NextWhitespaceToken(positionInLine, numberLine);
+                return NextWhitespaceToken();
 
-            if (TryNextDoubleToken(positionInLine, numberLine, out var token))
+            if (TryNextDoubleToken(out var token))
                 return token;
 
-            token = new Token(Current.GetSingleType(), Current.ToString(), positionInLine, numberLine);
+            token = new Token(Current.GetSingleType(), Current.ToString(), _positionInLine, _numberLine);
             _position++;
 
             return token;
         }
 
-        private Token NextNumberToken(int positionInLine, int numberLine)
+        private Token NextNumberToken()
         {
             var value = NextValue(char.IsDigit);
 
-            return new Token(TokenType.Number, value, positionInLine, numberLine);
+            return new Token(TokenType.Number, value, _positionInLine, _numberLine);
         }
 
-        private Token NextWordToken(int positionInLine, int numberLine)
+        private Token NextWordToken()
         {
             var value = NextValue(sym => char.IsLetter(sym) || sym == '_');
 
@@ -109,27 +107,27 @@ namespace Translator
             if (type == TokenType.Unknown)
                 type = TokenType.Identifier;
 
-            return new Token(type, value, positionInLine, numberLine);
+            return new Token(type, value, _positionInLine, _numberLine);
         }
 
-        private Token NextWhitespaceToken(int positionInLine, int numberLine)
+        private Token NextWhitespaceToken()
         {
             if (Current == '\n')
             {
                 _position++;
-                return new Token(TokenType.LineSeparator, "\n", positionInLine, numberLine);
+                return new Token(TokenType.LineSeparator, "\n", _positionInLine, _numberLine);
             }
 
             var value = NextValue(sym => char.IsWhiteSpace(sym) && sym != '\n');
 
-            return new Token(TokenType.Space, value, positionInLine, numberLine);
+            return new Token(TokenType.Space, value, _positionInLine, _numberLine);
         }
 
-        private bool TryNextDoubleToken(int positionInLine, int numberLine, out Token token)
+        private bool TryNextDoubleToken(out Token token)
         {
             var value = new string(new[] { Peek(0), Peek(1) });
             var type = value.GetDoubleType();
-            token = new Token(type, value, positionInLine, numberLine);
+            token = new Token(type, value, _positionInLine, _numberLine);
 
             if (type != TokenType.Unknown)
             {

@@ -7,21 +7,18 @@ namespace Translator
     internal sealed class Parser
     {
         private int _position;
-        private readonly IReadOnlyList<Token> _tokens;
+        private IReadOnlyList<Token> _tokens;
 
-        private readonly Diagnostic _diagnostic;
+        private Diagnostic _diagnostic;
 
-        public Parser(SourceCode code, IReadOnlyList<Token> tokens)
+        public CompilationState<SyntaxExpression> Parse(SourceCode code, IReadOnlyList<Token> tokens)
         {
             _tokens = tokens;
             _diagnostic = new Diagnostic(code);
-        }
 
-        public IEnumerable<Error> Errors => _diagnostic.Errors;
+            var expession = ParseBinaryExpression();
 
-        public SyntaxExpression Parse()
-        {
-            return ParseBinaryExpression();
+            return new CompilationState<SyntaxExpression>(expession, _diagnostic.Errors);
         }
 
         private Token Current => _position < _tokens.Count ? _tokens[_position] : _tokens.Last();
