@@ -7,7 +7,14 @@
         Multiplication,
         Division,
         Exponentiation,
+
+        Less,
+        LessOrEquals,
+        More,
+        MoreOrEquals,
+        Equality,
+        NotEquality,
         LogicalAnd,
-        LogicalOr
+        LogicalOr,
     }
 }

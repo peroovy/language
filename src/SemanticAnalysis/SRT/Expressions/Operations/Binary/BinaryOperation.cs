@@ -13,7 +13,13 @@ namespace Translator.SRT
             new BinaryOperation(BinaryOperationKind.Multiplication, typeof(int), typeof(int), typeof(int)),
             new BinaryOperation(BinaryOperationKind.Division, typeof(int), typeof(int), typeof(int)),
             new BinaryOperation(BinaryOperationKind.Exponentiation, typeof(int), typeof(int), typeof(int)),
-                                               
+            
+            new BinaryOperation(BinaryOperationKind.Less, typeof(int), typeof(int), typeof(bool)),
+            new BinaryOperation(BinaryOperationKind.LessOrEquals, typeof(int), typeof(int), typeof(bool)),
+            new BinaryOperation(BinaryOperationKind.More, typeof(int), typeof(int), typeof(bool)),
+            new BinaryOperation(BinaryOperationKind.MoreOrEquals, typeof(int), typeof(int), typeof(bool)),
+            new BinaryOperation(BinaryOperationKind.Equality, typeof(int), typeof(int), typeof(bool)),
+            new BinaryOperation(BinaryOperationKind.NotEquality, typeof(int), typeof(int), typeof(bool)),
             new BinaryOperation(BinaryOperationKind.LogicalAnd, typeof(bool), typeof(bool), typeof(bool)),
             new BinaryOperation(BinaryOperationKind.LogicalOr, typeof(bool), typeof(bool), typeof(bool)),                                                                                              
         };

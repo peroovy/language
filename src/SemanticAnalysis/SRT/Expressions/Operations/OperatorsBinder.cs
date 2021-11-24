@@ -9,6 +9,7 @@ namespace Translator.SRT
         {
             [TokenType.Plus] = UnaryOperationKind.Positive,
             [TokenType.Minus] = UnaryOperationKind.Negation,
+
             [TokenType.Bang] = UnaryOperationKind.LogicalNegation
         };
 
@@ -20,6 +21,13 @@ namespace Translator.SRT
             [TokenType.Star] = BinaryOperationKind.Multiplication,
             [TokenType.Slash] = BinaryOperationKind.Division,
             [TokenType.DoubleStar] = BinaryOperationKind.Exponentiation,
+
+            [TokenType.LeftArrow] = BinaryOperationKind.Less,
+            [TokenType.LeftArrowEquals] = BinaryOperationKind.LessOrEquals,
+            [TokenType.RightArrow] = BinaryOperationKind.More,
+            [TokenType.RightArrowEquals] = BinaryOperationKind.MoreOrEquals,
+            [TokenType.DoubleEquals] = BinaryOperationKind.Equality,
+            [TokenType.BangEquals] = BinaryOperationKind.NotEquality,
             [TokenType.DoubleOpersand] = BinaryOperationKind.LogicalAnd,
             [TokenType.DoubleVerticalBar] = BinaryOperationKind.LogicalOr
         };

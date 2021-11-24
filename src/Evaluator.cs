@@ -88,6 +88,24 @@ namespace Translator
                 case BinaryOperationKind.Exponentiation:
                     return (int)Math.Pow((int)left, (int)right);
 
+                case BinaryOperationKind.Less:
+                    return (int)left < (int)right;
+
+                case BinaryOperationKind.LessOrEquals:
+                    return (int)left <= (int)right;
+
+                case BinaryOperationKind.More:
+                    return (int)left > (int)right;
+
+                case BinaryOperationKind.MoreOrEquals:
+                    return (int)left >= (int)right;
+
+                case BinaryOperationKind.Equality:
+                    return (int)left == (int)right;
+
+                case BinaryOperationKind.NotEquality:
+                    return (int)left != (int)right;
+
                 case BinaryOperationKind.LogicalAnd:
                     return (bool)left && (bool)right;
 

@@ -11,9 +11,14 @@ namespace Translator
             ['-'] = TokenType.Minus,
             ['*'] = TokenType.Star,
             ['/'] = TokenType.Slash,
+
             ['('] = TokenType.OpenParenthesis,
             [')'] = TokenType.CloseParenthesis,
+
             ['!'] = TokenType.Bang,
+            ['<'] = TokenType.LeftArrow,
+            ['>'] = TokenType.RightArrow,
+
             ['\0'] = TokenType.EOF,
         };
 
@@ -21,6 +26,12 @@ namespace Translator
             new Dictionary<string, TokenType>
         {
             ["**"] = TokenType.DoubleStar,
+
+            ["=="] = TokenType.DoubleEquals,
+            ["!="] = TokenType.BangEquals,
+            ["<="] = TokenType.LeftArrowEquals,
+            [">="] = TokenType.RightArrowEquals,
+
             ["&&"] = TokenType.DoubleOpersand,
             ["||"] = TokenType.DoubleVerticalBar
         };

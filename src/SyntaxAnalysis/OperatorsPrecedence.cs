@@ -8,8 +8,10 @@
             {
                 case TokenType.Plus:
                 case TokenType.Minus:
-                case TokenType.Bang:
                     return 8;
+
+                case TokenType.Bang:
+                    return 4;
             }
 
             return null;
@@ -20,7 +22,7 @@
             switch (type)
             {
                 case TokenType.DoubleStar:
-                    return 9;
+                    return 10;
 
                 case TokenType.Star:
                 case TokenType.Slash:
@@ -30,11 +32,19 @@
                 case TokenType.Minus:
                     return 6;
 
+                case TokenType.LeftArrow:
+                case TokenType.LeftArrowEquals:
+                case TokenType.RightArrow:
+                case TokenType.RightArrowEquals:
+                case TokenType.BangEquals:
+                case TokenType.DoubleEquals:
+                    return 5;
+
                 case TokenType.DoubleOpersand:
-                    return 4;
+                    return 3;
 
                 case TokenType.DoubleVerticalBar:
-                    return 3;
+                    return 2;
             }
 
             return null;
