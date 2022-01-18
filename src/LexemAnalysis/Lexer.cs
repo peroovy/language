@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Translator
 {
     internal sealed class Lexer
     {
+        private readonly Regex _numberRegex = new Regex(@"([0-9]*[.])?[0-9]+");
+        private readonly Regex _wordRegex = new Regex(@"_*([a-z]|[A-Z]|[а-я]|[А-Я])\w*");
+
         private string _code;
         private int _position;
 
@@ -61,20 +64,9 @@ namespace Translator
             return index < _code.Length ? _code[index] : '\0';
         }
 
-        private string NextValue(Func<char, bool> predicate)
-        {
-            var value = new string(_code
-                    .TakeWhile(_position, predicate)
-                    .ToArray());
-
-            _position += value.Length;
-
-            return value;
-        }
-
         private Token NextToken()
         {
-            if (char.IsDigit(Current))
+            if (char.IsDigit(Current) || Current == '.' && char.IsDigit(Peek(1)))
                 return NextNumberToken();
 
             if (char.IsLetter(Current) || Current == '_')
@@ -94,20 +86,28 @@ namespace Translator
 
         private Token NextNumberToken()
         {
-            var value = NextValue(char.IsDigit);
+            var number = _numberRegex
+                .Match(_code, _position)
+                .ToString();
 
-            return new Token(TokenType.Number, value, _positionInLine, _numberLine);
+            _position += number.Length;
+
+            return new Token(TokenType.Number, number, _positionInLine, _numberLine);
         }
 
         private Token NextWordToken()
         {
-            var value = NextValue(sym => char.IsLetter(sym) || sym == '_');
+            var word = _wordRegex
+                .Match(_code, _position)
+                .ToString();
 
-            var type = value.GetKeywordType();
+            var type = word.GetKeywordType();
             if (type == TokenType.Unknown)
                 type = TokenType.Identifier;
 
-            return new Token(type, value, _positionInLine, _numberLine);
+            _position += word.Length;
+
+            return new Token(type, word, _positionInLine, _numberLine);
         }
 
         private Token NextWhitespaceToken()
@@ -118,7 +118,11 @@ namespace Translator
                 return new Token(TokenType.LineSeparator, "\n", _positionInLine, _numberLine);
             }
 
-            var value = NextValue(sym => char.IsWhiteSpace(sym) && sym != '\n');
+            var value = new string(_code
+                    .TakeWhile(_position, sym => char.IsWhiteSpace(sym) && sym != '\n')
+                    .ToArray());
+
+            _position += value.Length;
 
             return new Token(TokenType.Space, value, _positionInLine, _numberLine);
         }

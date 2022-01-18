@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Translator.ObjectModel;
 
 namespace Translator.SRT
 {
@@ -10,7 +10,7 @@ namespace Translator.SRT
         }
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.ParenthesizedExpression;
-        public override Type ReturnedType => Expression.ReturnedType;
+        public override ObjectTypes Type => Expression.Type;
         public ResolvedExpression Expression { get; }
     }
 }

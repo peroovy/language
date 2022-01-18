@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Translator.ObjectModel;
 
 namespace Translator.SRT
 {
     internal sealed class ResolvedLiteralExpression : ResolvedExpression
     {
-        public ResolvedLiteralExpression(string value, Type type)
+        public ResolvedLiteralExpression(string value, ObjectTypes type)
         {
             Value = value;
-            ReturnedType = type;
+            Type = type;
         }
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.LiteralExpression;
-        public override Type ReturnedType { get; }
+        public override ObjectTypes Type { get; }
         public string Value { get; }
     }
 }

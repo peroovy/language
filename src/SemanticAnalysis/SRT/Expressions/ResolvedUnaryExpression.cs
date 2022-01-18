@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Translator.ObjectModel;
 
 namespace Translator.SRT
 {
     internal sealed class ResolvedUnaryExpression : ResolvedExpression
     {
-        public ResolvedUnaryExpression(UnaryOperation operation, ResolvedExpression operand)
+        public ResolvedUnaryExpression(IUnaryOperation operation, ResolvedExpression operand)
         {
             Operation = operation;
             Operand = operand;
         }
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.UnaryExpression;
-        public override Type ReturnedType => Operation.ReturnedType;
-        public UnaryOperation Operation { get; }
+        public override ObjectTypes Type => Operand.Type;
+        public IUnaryOperation Operation { get; }
         public ResolvedExpression Operand { get; }
     }
 }

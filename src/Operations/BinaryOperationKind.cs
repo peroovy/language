@@ -1,4 +1,4 @@
-﻿namespace Translator.SRT
+﻿namespace Translator
 {
     internal enum BinaryOperationKind
     {
@@ -9,9 +9,9 @@
         Exponentiation,
 
         Less,
-        LessOrEquals,
+        LessOrEquality,
         More,
-        MoreOrEquals,
+        MoreOrEquality,
         Equality,
         NotEquality,
         LogicalAnd,

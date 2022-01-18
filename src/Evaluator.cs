@@ -1,16 +1,22 @@
-﻿using System;
+﻿using Translator.ObjectModel;
 using Translator.SRT;
 
 namespace Translator
 {
     internal sealed class Evaluator
     {
-        public object Evaluate(ResolvedExpression expression)
+        private Diagnostic _diagnostic;
+
+        public CompilationState<Object> Evaluate(SourceCode code, ResolvedExpression expression)
         {
-            return EvaluateExpression(expression);
+            _diagnostic = new Diagnostic(code);
+
+            var result = EvaluateExpression(expression);
+
+            return new CompilationState<Object>(result, _diagnostic.Errors);
         }
 
-        public object EvaluateExpression(ResolvedExpression expression)
+        public Object EvaluateExpression(ResolvedExpression expression)
         {
             switch (expression.Kind)
             {
@@ -27,93 +33,50 @@ namespace Translator
                     return EvaluateBinaryExpression((ResolvedBinaryExpression)expression);
             }
 
-            throw new Exception($"Unknown expression's type '{expression.Kind}'");
+            throw new System.Exception($"Unknown expression's type '{expression.Kind}'");
         }
 
-        private object EvaluateLiteralExpression(ResolvedLiteralExpression literal)
+        private Object EvaluateLiteralExpression(ResolvedLiteralExpression literal)
         {
-            if (literal.ReturnedType == typeof(int))
-                return int.TryParse(literal.Value, out var value) ? value : 0;
-
-            if (literal.ReturnedType == typeof(bool))
-                return bool.TryParse(literal.Value, out var value) ? value : false;
-
-            throw new Exception($"Unknown literal {literal.Kind}'");
-        }
-
-        private object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
-        {
-            switch (unary.Operation.Kind)
+            switch (literal.Type)
             {
-                case UnaryOperationKind.Positive:
-                    return EvaluateExpression(unary.Operand);
+                case ObjectTypes.Int:
+                    return Int.Create(literal.Value);
 
-                case UnaryOperationKind.Negation:
-                    return -(int)EvaluateExpression(unary.Operand);
+                case ObjectTypes.Float:
+                    return Float.Create(literal.Value);
 
-                case UnaryOperationKind.LogicalNegation:
-                    return !(bool)EvaluateExpression(unary.Operand);
+                case ObjectTypes.Bool:
+                    return Bool.Create(literal.Value);
+
+                case ObjectTypes.Null:
+                    return new Null();
             }
 
-            throw new Exception($"Unknown unary operation's type '{unary.Operation}'");
+            throw new System.Exception($"Unknown evaluation of {literal.Type} literal");
         }
 
-        private object EvaluateBinaryExpression(ResolvedBinaryExpression bin)
+        private Object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
+        {
+            var operand = EvaluateExpression(unary.Operand);
+
+            return unary.Operation.Evaluate(operand);
+        }
+
+        private Object EvaluateBinaryExpression(ResolvedBinaryExpression bin)
         {
             var left = EvaluateExpression(bin.Left);
             var right = EvaluateExpression(bin.Right);
 
-            if (left is null || right is null)
-                return null;
+            var result = bin.Operation.Evaluate(left, right);
 
-            switch (bin.Operation.Kind)
+            if (bin.Operation.Kind == BinaryOperationKind.Division
+                && result is null)
             {
-                case BinaryOperationKind.Addition:
-                    return (int)left + (int)right;
-
-                case BinaryOperationKind.Subtraction:
-                    return (int)left - (int)right;
-
-                case BinaryOperationKind.Multiplication:
-                    return (int)left * (int)right;
-
-                case BinaryOperationKind.Division:
-                {
-                    if ((int)right == 0)
-                        return null;
-
-                    return (int)left / (int)right;
-                }
-
-                case BinaryOperationKind.Exponentiation:
-                    return (int)Math.Pow((int)left, (int)right);
-
-                case BinaryOperationKind.Less:
-                    return (int)left < (int)right;
-
-                case BinaryOperationKind.LessOrEquals:
-                    return (int)left <= (int)right;
-
-                case BinaryOperationKind.More:
-                    return (int)left > (int)right;
-
-                case BinaryOperationKind.MoreOrEquals:
-                    return (int)left >= (int)right;
-
-                case BinaryOperationKind.Equality:
-                    return (int)left == (int)right;
-
-                case BinaryOperationKind.NotEquality:
-                    return (int)left != (int)right;
-
-                case BinaryOperationKind.LogicalAnd:
-                    return (bool)left && (bool)right;
-
-                case BinaryOperationKind.LogicalOr:
-                    return (bool)left || (bool)right;
+                _diagnostic.ReportDivisionByZero(bin.OperatorLocation);
             }
 
-            throw new Exception($"Unknown binary operation's type '{bin.Operation}'");
+            return result;
         }
     }
 }

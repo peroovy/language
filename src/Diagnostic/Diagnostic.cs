@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Translator.ObjectModel;
 using Translator.SRT;
 
 namespace Translator
@@ -30,23 +31,30 @@ namespace Translator
             Report(message, location);
         }
 
-        public void ReportUndefinedUnaryOperationForType(UnaryOperation operation, TextLocation location)
+        public void ReportUndefinedUnaryOperationForType(UnaryOperationKind operation, ObjectTypes operand, TextLocation location)
         {
-            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The unary operation '{operation.Kind}' is not defined for type '{operation.OperandType}'";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The unary operation '{operation}' is not defined for type '{operand}'";
 
             Report(message, location);
         }
 
-        public void ReportUndefinedBinaryOperationForTypes(BinaryOperation operation, TextLocation location)
+        public void ReportUndefinedBinaryOperationForTypes(ObjectTypes left, BinaryOperationKind operation, ObjectTypes right, TextLocation location)
         {
-            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operation '{operation.Kind}' is not defined for types '{operation.LeftType}' and '{operation.RightType}'";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operation '{operation}' is not defined for types '{left}' and '{right}'";
 
             Report(message, location);
         }
 
         public void ReportDivisionByZero(TextLocation location)
         {
-            var message = $"ERROR: Division by zero in line {location.NumberLine}";
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Division by zero";
+
+            Report(message, location);
+        }
+
+        public void ReportFractionLost(TextLocation location)
+        {
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Fraction part of number is lost";
 
             Report(message, location);
         }

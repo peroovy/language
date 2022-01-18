@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Translator.AST;
+using Translator.ObjectModel;
 
 namespace Translator
 {
@@ -89,14 +90,18 @@ namespace Translator
                 case TokenType.TrueKeyword:
                 case TokenType.FalseKeyword:
                 {
-                    var boolean = NextToken();
+                    var value = NextToken();
 
-                    return new SyntaxLiteralExpression(boolean);
+                    return new SyntaxLiteralExpression(value, ObjectTypes.Bool);
                 }
             }
 
             var number = MatchToken(TokenType.Number);
-            return new SyntaxLiteralExpression(number);
+            var type = number.Value == null 
+                ? ObjectTypes.Unknown 
+                : number.Value.Contains('.') ? ObjectTypes.Float : ObjectTypes.Int;
+
+            return new SyntaxLiteralExpression(number, type);
         }
     }
 }

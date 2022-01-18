@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Translator.ObjectModel;
 
 namespace Translator.SRT
 {
     internal abstract class ResolvedExpression : ResolvedNode
     {
-        public abstract Type ReturnedType { get; }
+        public abstract ObjectTypes Type { get; }
     }
 }

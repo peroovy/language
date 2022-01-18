@@ -39,17 +39,7 @@ namespace Translator
 
         private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression literal)
         {
-            switch (literal.Token.Type)
-            {
-                case TokenType.Number:
-                    return new ResolvedLiteralExpression(literal.Token.Value, typeof(int));
-
-                case TokenType.TrueKeyword:
-                case TokenType.FalseKeyword:
-                    return new ResolvedLiteralExpression(literal.Token.Value, typeof(bool));
-            }
-
-            throw new Exception($"{literal.Kind} '{literal.Token.Value}' is not resolved");
+            return new ResolvedLiteralExpression(literal.Token.Value, literal.ObjectType);
         }
 
         private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression parentheses)
@@ -62,15 +52,15 @@ namespace Translator
         private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression unary)
         {
             var operand = ResolveExpression(unary.Operand);
-            var operation = UnaryOperation.Resolve(unary.OperatorToken.Type, operand);
+            var operation = unary.OperatorToken.Type.ToUnaryOperation();
 
             if (operation is null)
                 throw new Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
 
-            if (operation.ReturnedType != null)
+            if (operation.IsApplicable(operand.Type))
                 return new ResolvedUnaryExpression(operation, operand);
 
-            _diagnostic.ReportUndefinedUnaryOperationForType(operation, unary.OperatorToken.Location);
+            _diagnostic.ReportUndefinedUnaryOperationForType(operation.Kind, operand.Type, unary.OperatorToken.Location);
 
             return operand;
         }
@@ -79,15 +69,15 @@ namespace Translator
         {
             var left = ResolveExpression(bin.Left);
             var right = ResolveExpression(bin.Right);
-            var operation = BinaryOperation.Resove(bin.OperatorToken.Type, left, right);
+            var operation = bin.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
                 throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not resolved");
 
-            if (operation.ReturnedType != null)
-                return new ResolvedBinaryExpression(left, operation, right);
+            if (operation.IsApplicable(left.Type, right.Type))
+                return new ResolvedBinaryExpression(left, operation, right, bin.OperatorToken.Location);
 
-            _diagnostic.ReportUndefinedBinaryOperationForTypes(operation, bin.OperatorToken.Location);
+            _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, bin.OperatorToken.Location);
 
             return left;
         }

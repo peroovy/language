@@ -1,4 +1,4 @@
-﻿namespace Translator.SRT
+﻿namespace Translator
 {
     internal enum UnaryOperationKind
     {
