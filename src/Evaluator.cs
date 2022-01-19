@@ -51,6 +51,9 @@ namespace Translator
 
                 case ObjectTypes.Null:
                     return new Null();
+
+                case ObjectTypes.Unknown:
+                    return null;
             }
 
             throw new System.Exception($"Unknown evaluation of {literal.Type} literal");
