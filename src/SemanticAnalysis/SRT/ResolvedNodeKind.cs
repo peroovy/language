@@ -5,6 +5,8 @@
         BinaryExpression,
         UnaryExpression,
         ParenthesizedExpression,
-        LiteralExpression
+        LiteralExpression,
+
+        DeclareVariableStatement
     }
 }

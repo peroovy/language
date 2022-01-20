@@ -2,7 +2,7 @@
 {
     internal sealed class Null : Object
     {
-        public override ObjectTypes Kind => ObjectTypes.Null;
+        public override ObjectTypes Type => ObjectTypes.Null;
 
         public override string ToString() => "null";
     }

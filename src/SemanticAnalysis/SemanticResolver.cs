@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Translator.AST;
+using Translator.ObjectModel;
 using Translator.SRT;
 
 namespace Translator
@@ -7,15 +8,34 @@ namespace Translator
     internal sealed class SemanticResolver
     {
         private Diagnostic _diagnostic;
+        private Dictionary<Variable, Object> _scope;
 
-        public CompilationState<ResolvedExpression> Resolve(SourceCode code, SyntaxExpression expression)
+        public CompilationState<ResolvedNode> Resolve(SourceCode code, SyntaxNode node, Dictionary<Variable, Object> scope)
         {
             _diagnostic = new Diagnostic(code);
+            _scope = scope;
 
-            var expr = ResolveExpression(expression);
+            ResolvedNode resolvedNode = null;
 
-            return new CompilationState<ResolvedExpression>(expr, _diagnostic.Errors);
+            switch (node.Kind)
+            {
+                case SyntaxNodeKind.DeclareVariableStatement:
+                {
+                    resolvedNode = ResolveStatement((SyntaxStatement)node);
+                    break;
+                }
+
+                default:
+                {
+                    resolvedNode = ResolveExpression((SyntaxExpression)node);
+                    break;
+                }
+            }
+
+            return new CompilationState<ResolvedNode>(resolvedNode, _diagnostic.Errors);
         }
+
+        #region Expressions
 
         private ResolvedExpression ResolveExpression(SyntaxExpression expression)
         {
@@ -34,7 +54,7 @@ namespace Translator
                     return ResolveBinaryExpression((SyntaxBinaryExpression)expression);
             }
 
-            throw new Exception($"'{expression.Kind}' is not resolved");
+            throw new System.Exception($"Expression '{expression.Kind}' is not resolved");
         }
 
         private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression literal)
@@ -55,7 +75,7 @@ namespace Translator
             var operation = unary.OperatorToken.Type.ToUnaryOperation();
 
             if (operation is null)
-                throw new Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
+                throw new System.Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
 
             if (operation.IsApplicable(operand.Type))
                 return new ResolvedUnaryExpression(operation, operand);
@@ -65,21 +85,68 @@ namespace Translator
             return operand;
         }
 
-        private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression bin)
+        private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression binary)
         {
-            var left = ResolveExpression(bin.Left);
-            var right = ResolveExpression(bin.Right);
-            var operation = bin.OperatorToken.Type.ToBinaryOperation();
+            var left = ResolveExpression(binary.Left);
+            var right = ResolveExpression(binary.Right);
+            var operation = binary.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
-                throw new Exception($"The binary operator '{bin.OperatorToken.Value}' is not resolved");
+                throw new System.Exception($"The binary operator '{binary.OperatorToken.Value}' is not resolved");
 
             if (operation.IsApplicable(left.Type, right.Type))
-                return new ResolvedBinaryExpression(left, operation, right, bin.OperatorToken.Location);
+                return new ResolvedBinaryExpression(left, operation, right, binary.OperatorToken.Location);
 
-            _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, bin.OperatorToken.Location);
+            _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, binary.OperatorToken.Location);
 
             return left;
         }
+
+        #endregion
+
+        #region Statements
+
+        private ResolvedStatement ResolveStatement(SyntaxStatement statement)
+        {
+            switch (statement.Kind)
+            {
+                case SyntaxNodeKind.DeclareVariableStatement:
+                    return ResolveDeclareVariableStatement((SyntaxDeclareVariableStatement)statement);
+            }
+
+            throw new System.Exception($"Statement '{statement.Kind}' is not resolved");
+        }
+
+        private ResolvedDeclareVariableStatement ResolveDeclareVariableStatement(SyntaxDeclareVariableStatement statement)
+        {
+            var keyword = statement.Keyword;
+            var identifier = statement.Identifier;
+
+            var type = statement.Keyword.Type.GetVariableType();
+            if (type == ObjectTypes.Unknown)
+                _diagnostic.ReportUndefinedTypeError(keyword.Value, keyword.Location);
+
+            var variable = new Variable(identifier.Value, type);
+            ResolvedExpression initExpression = null;
+
+            if (statement.InitializedExpression != null)
+                initExpression = ResolveExpression(statement.InitializedExpression);
+
+            if (identifier.Value == null)
+                return new ResolvedDeclareVariableStatement(null, initExpression, statement.Operator?.Location);
+
+            if (_scope.ContainsKey(variable))
+            {
+                _diagnostic.ReportVariableAlreadyExistError(identifier.Value, identifier.Location);
+
+                return new ResolvedDeclareVariableStatement(null, initExpression, statement.Operator?.Location);
+            }
+
+            _scope.Add(variable, null);
+
+            return new ResolvedDeclareVariableStatement(variable, initExpression, statement.Operator?.Location);
+        }
+
+        #endregion
     }
 }

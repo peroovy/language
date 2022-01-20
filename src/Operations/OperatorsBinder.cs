@@ -4,40 +4,40 @@ namespace Translator
 {
     internal static class OperatorsBinder
     {
-        private static readonly Dictionary<TokenType, IUnaryOperation> _unaryOperatorsBindings = 
-            new Dictionary<TokenType, IUnaryOperation>
+        private static readonly Dictionary<TokenTypes, IUnaryOperation> _unaryOperatorsBindings = 
+            new Dictionary<TokenTypes, IUnaryOperation>
         {
-            [TokenType.Plus] = new Positive(),
-            [TokenType.Minus] = new Negation(),
-            [TokenType.Bang] = new LogicalNegation() 
+            [TokenTypes.Plus] = new Positive(),
+            [TokenTypes.Minus] = new Negation(),
+            [TokenTypes.Bang] = new LogicalNegation() 
         };
 
-        private static readonly Dictionary<TokenType, IBinaryOperation> _binaryOperatorsBindings = 
-            new Dictionary<TokenType, IBinaryOperation>
+        private static readonly Dictionary<TokenTypes, IBinaryOperation> _binaryOperatorsBindings = 
+            new Dictionary<TokenTypes, IBinaryOperation>
         {
-            [TokenType.Plus] = new Addition(),
-            [TokenType.Minus] = new Subtraction(),
-            [TokenType.Star] = new Multiplication(),
-            [TokenType.Slash] = new Division(),
-            [TokenType.DoubleStar] = new Exponentiation(),
+            [TokenTypes.Plus] = new Addition(),
+            [TokenTypes.Minus] = new Subtraction(),
+            [TokenTypes.Star] = new Multiplication(),
+            [TokenTypes.Slash] = new Division(),
+            [TokenTypes.DoubleStar] = new Exponentiation(),
 
-            [TokenType.LeftArrow] = new Less(),
-            [TokenType.LeftArrowEquals] = new LessOrEquality(),
-            [TokenType.RightArrow] = new More(),
-            [TokenType.RightArrowEquals] = new MoreOrEquality(),
-            [TokenType.DoubleEquals] = new Equality(),
-            [TokenType.BangEquals] = new NotEquality(),
-            [TokenType.DoubleOpersand] = new LogicalAnd(),
-            [TokenType.DoubleVerticalBar] = new LogicalOr()
+            [TokenTypes.LeftArrow] = new Less(),
+            [TokenTypes.LeftArrowEquals] = new LessOrEquality(),
+            [TokenTypes.RightArrow] = new More(),
+            [TokenTypes.RightArrowEquals] = new MoreOrEquality(),
+            [TokenTypes.DoubleEquals] = new Equality(),
+            [TokenTypes.BangEquals] = new NotEquality(),
+            [TokenTypes.DoubleOpersand] = new LogicalAnd(),
+            [TokenTypes.DoubleVerticalBar] = new LogicalOr()
         };
 
-        public static IUnaryOperation ToUnaryOperation(this TokenType type) => 
+        public static IUnaryOperation ToUnaryOperation(this TokenTypes type) => 
             GetOperation(type, _unaryOperatorsBindings);
 
-        public static IBinaryOperation ToBinaryOperation(this TokenType type) => 
+        public static IBinaryOperation ToBinaryOperation(this TokenTypes type) => 
             GetOperation(type, _binaryOperatorsBindings);
 
-        private static TOperation GetOperation<TOperation>(TokenType op, Dictionary<TokenType, TOperation> bindings)
+        private static TOperation GetOperation<TOperation>(TokenTypes op, Dictionary<TokenTypes, TOperation> bindings)
             where TOperation : class
         {
             if (bindings.TryGetValue(op, out var operation))

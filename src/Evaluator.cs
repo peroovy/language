@@ -1,4 +1,5 @@
-﻿using Translator.ObjectModel;
+﻿using System.Collections.Generic;
+using Translator.ObjectModel;
 using Translator.SRT;
 
 namespace Translator
@@ -6,15 +7,34 @@ namespace Translator
     internal sealed class Evaluator
     {
         private Diagnostic _diagnostic;
+        private Dictionary<Variable, Object> _scope; 
 
-        public CompilationState<Object> Evaluate(SourceCode code, ResolvedExpression expression)
+        public CompilationState<Object> Evaluate(SourceCode code, ResolvedNode node, Dictionary<Variable, Object> scope)
         {
             _diagnostic = new Diagnostic(code);
+            _scope = scope;
 
-            var result = EvaluateExpression(expression);
+            Object result = null;
+
+            switch (node.Kind)
+            {
+                case ResolvedNodeKind.DeclareVariableStatement:
+                {
+                    result = EvaluateStatement((ResolvedStatement)node);
+                    break;
+                }
+
+                default:
+                {
+                    result = EvaluateExpression((ResolvedExpression)node);
+                    break;
+                }
+            }
 
             return new CompilationState<Object>(result, _diagnostic.Errors);
         }
+
+        #region Expressions
 
         public Object EvaluateExpression(ResolvedExpression expression)
         {
@@ -33,7 +53,7 @@ namespace Translator
                     return EvaluateBinaryExpression((ResolvedBinaryExpression)expression);
             }
 
-            throw new System.Exception($"Unknown expression's type '{expression.Kind}'");
+            throw new System.Exception($"Unknown '{expression.Kind}' is not evaluated");
         }
 
         private Object EvaluateLiteralExpression(ResolvedLiteralExpression literal)
@@ -66,20 +86,65 @@ namespace Translator
             return unary.Operation.Evaluate(operand);
         }
 
-        private Object EvaluateBinaryExpression(ResolvedBinaryExpression bin)
+        private Object EvaluateBinaryExpression(ResolvedBinaryExpression binary)
         {
-            var left = EvaluateExpression(bin.Left);
-            var right = EvaluateExpression(bin.Right);
+            var left = EvaluateExpression(binary.Left);
+            var right = EvaluateExpression(binary.Right);
 
-            var result = bin.Operation.Evaluate(left, right);
+            var result = binary.Operation.Evaluate(left, right);
 
-            if (bin.Operation.Kind == BinaryOperationKind.Division
+            if (binary.Operation.Kind == BinaryOperationKind.Division
                 && result is null)
             {
-                _diagnostic.ReportDivisionByZero(bin.OperatorLocation);
+                _diagnostic.ReportDivisionByZero(binary.OperatorLocation);
             }
 
             return result;
         }
+
+        #endregion
+
+        #region Statements
+
+        private Object EvaluateStatement(ResolvedStatement statement)
+        {
+            switch (statement.Kind)
+            {
+                case ResolvedNodeKind.DeclareVariableStatement:
+                    return EvaluateDeclareVariableStatement((ResolvedDeclareVariableStatement)statement);
+            }
+
+            throw new System.Exception($"Unknown '{statement.Kind}' is not evaluated");
+        }
+
+        private Object EvaluateDeclareVariableStatement(ResolvedDeclareVariableStatement statement)
+        {
+            var variable = statement.Variable;
+            if (variable == null)
+                return null;
+
+            var value = statement.InitializedExpression == null 
+                ? Object.Create(variable.Type) 
+                : EvaluateExpression(statement.InitializedExpression);
+
+            if (variable.Type != value.Type)
+            {
+                if (ImplicitCast.Instance.IsApplicable(value.Type, variable.Type))
+                {
+                    value = ImplicitCast.Instance.CastTo(variable.Type, value);
+                }
+                else
+                {
+                    _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, statement.EqualsLocation.Value);
+                    value = null;
+                }
+            }
+
+            _scope[variable] = value ?? Object.Create(variable.Type);
+
+            return null;
+        }
+
+        #endregion
     }
 }

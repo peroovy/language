@@ -31,10 +31,10 @@ namespace Translator
             {
                 token = NextToken();
 
-                if (token.Type == TokenType.Unknown)
+                if (token.Type == TokenTypes.Unknown)
                     _diagnostic.ReportUnknownTokenError(token.Value, token.Location);
 
-                if (token.Type == TokenType.LineSeparator)
+                if (token.Type == TokenTypes.LineSeparator)
                 {
                     _positionInLine = 0;
                     _numberLine++;
@@ -44,13 +44,13 @@ namespace Translator
                     _positionInLine += token.Value.Length;
                 }
 
-                if (token.Type != TokenType.Space
-                    && token.Type != TokenType.LineSeparator)
+                if (token.Type != TokenTypes.Space
+                    && token.Type != TokenTypes.LineSeparator)
                 {
                     tokens.Add(token);
                 }
 
-            } while (token.Type != TokenType.EOF);
+            } while (token.Type != TokenTypes.EOF);
 
             return new CompilationState<IReadOnlyList<Token>>(tokens, _diagnostic.Errors);
         }
@@ -78,7 +78,11 @@ namespace Translator
             if (TryNextDoubleToken(out var token))
                 return token;
 
-            token = new Token(Current.GetSingleType(), Current.ToString(), _positionInLine, _numberLine);
+            var single = Current.GetSingleType();
+            var value = Current.ToString();
+
+            token = new Token(single, value, _positionInLine, _numberLine);
+
             _position++;
 
             return token;
@@ -92,7 +96,7 @@ namespace Translator
 
             _position += number.Length;
 
-            return new Token(TokenType.Number, number, _positionInLine, _numberLine);
+            return new Token(TokenTypes.Number, number, _positionInLine, _numberLine);
         }
 
         private Token NextWordToken()
@@ -102,8 +106,8 @@ namespace Translator
                 .ToString();
 
             var type = word.GetKeywordType();
-            if (type == TokenType.Unknown)
-                type = TokenType.Identifier;
+            if (type == TokenTypes.Unknown)
+                type = TokenTypes.Identifier;
 
             _position += word.Length;
 
@@ -115,7 +119,7 @@ namespace Translator
             if (Current == '\n')
             {
                 _position++;
-                return new Token(TokenType.LineSeparator, "\n", _positionInLine, _numberLine);
+                return new Token(TokenTypes.LineSeparator, "\n", _positionInLine, _numberLine);
             }
 
             var value = new string(_code
@@ -124,7 +128,7 @@ namespace Translator
 
             _position += value.Length;
 
-            return new Token(TokenType.Space, value, _positionInLine, _numberLine);
+            return new Token(TokenTypes.Space, value, _positionInLine, _numberLine);
         }
 
         private bool TryNextDoubleToken(out Token token)
@@ -133,7 +137,7 @@ namespace Translator
             var type = value.GetDoubleType();
             token = new Token(type, value, _positionInLine, _numberLine);
 
-            if (type != TokenType.Unknown)
+            if (type != TokenTypes.Unknown)
             {
                 _position += 2;
                 return true;

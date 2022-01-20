@@ -1,6 +1,6 @@
 ﻿namespace Translator
 {
-    internal enum TokenType
+    internal enum TokenTypes
     {
         Number,
         Identifier,
@@ -15,6 +15,7 @@
 
         LeftArrow,
         RightArrow,
+        Equals,
         DoubleEquals,
         BangEquals,
         LeftArrowEquals,
@@ -26,6 +27,9 @@
         Space,
         LineSeparator,
 
+        IntKeyword,
+        FloatKeyword,
+        BoolKeyword,
         TrueKeyword,
         FalseKeyword,
 

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Translator.ObjectModel;
-using Translator.SRT;
 
 namespace Translator
 {
@@ -24,7 +22,7 @@ namespace Translator
             Report(message, location);
         }
 
-        public void ReportUnexpectedTokenError(TokenType actual, TokenType expected, TextLocation location)
+        public void ReportUnexpectedTokenError(TokenTypes actual, TokenTypes expected, TextLocation location)
         {
             var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Expected '{expected}', but was '{actual}'";
 
@@ -57,6 +55,27 @@ namespace Translator
             var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Fraction part of number is lost";
 
             Report(message, location);
+        }
+
+        public void ReportUndefinedTypeError(string name, TextLocation location)
+        {
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Undefined type '{name}'";
+
+            Report(message, location);
+        }
+
+        public void ReportVariableAlreadyExistError(string name, TextLocation location)
+        {
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Variable '{name}' already exists";
+
+            Report(message, location);
+        }
+
+        public void ReportImpossibleImplicitCast(ObjectTypes from,  ObjectTypes to, TextLocation equalsLocation)
+        {
+            var message = $"ERROR({equalsLocation.NumberLine}, {equalsLocation.Span.Start}): Cannot implicitly convert type from '{from}' to '{to}'";
+
+            Report(message, equalsLocation);
         }
 
         private void Report(string message, TextLocation location)

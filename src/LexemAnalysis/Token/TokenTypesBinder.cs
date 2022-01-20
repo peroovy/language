@@ -4,57 +4,62 @@ namespace Translator
 {
     internal static class TokenTypesBinder
     {
-        private static readonly Dictionary<char, TokenType> _singleTerminals = 
-            new Dictionary<char, TokenType>
+        private static readonly Dictionary<char, TokenTypes> _singleTerminals = 
+            new Dictionary<char, TokenTypes>
         {
-            ['+'] = TokenType.Plus,
-            ['-'] = TokenType.Minus,
-            ['*'] = TokenType.Star,
-            ['/'] = TokenType.Slash,
+            ['+'] = TokenTypes.Plus,
+            ['-'] = TokenTypes.Minus,
+            ['*'] = TokenTypes.Star,
+            ['/'] = TokenTypes.Slash,
+            ['='] = TokenTypes.Equals,
 
-            ['('] = TokenType.OpenParenthesis,
-            [')'] = TokenType.CloseParenthesis,
+            ['('] = TokenTypes.OpenParenthesis,
+            [')'] = TokenTypes.CloseParenthesis,
 
-            ['!'] = TokenType.Bang,
-            ['<'] = TokenType.LeftArrow,
-            ['>'] = TokenType.RightArrow,
+            ['!'] = TokenTypes.Bang,
+            ['<'] = TokenTypes.LeftArrow,
+            ['>'] = TokenTypes.RightArrow,
 
-            ['\0'] = TokenType.EOF,
+            ['\0'] = TokenTypes.EOF,
         };
 
-        private static readonly Dictionary<string, TokenType> _doubleTerminals =
-            new Dictionary<string, TokenType>
+        private static readonly Dictionary<string, TokenTypes> _doubleTerminals =
+            new Dictionary<string, TokenTypes>
         {
-            ["**"] = TokenType.DoubleStar,
+            ["**"] = TokenTypes.DoubleStar,
 
-            ["=="] = TokenType.DoubleEquals,
-            ["!="] = TokenType.BangEquals,
-            ["<="] = TokenType.LeftArrowEquals,
-            [">="] = TokenType.RightArrowEquals,
+            ["=="] = TokenTypes.DoubleEquals,
+            ["!="] = TokenTypes.BangEquals,
+            ["<="] = TokenTypes.LeftArrowEquals,
+            [">="] = TokenTypes.RightArrowEquals,
 
-            ["&&"] = TokenType.DoubleOpersand,
-            ["||"] = TokenType.DoubleVerticalBar
+            ["&&"] = TokenTypes.DoubleOpersand,
+            ["||"] = TokenTypes.DoubleVerticalBar
         };
 
-        private static readonly Dictionary<string, TokenType> _keywords =
-            new Dictionary<string, TokenType>
+        private static readonly Dictionary<string, TokenTypes> _keywords =
+            new Dictionary<string, TokenTypes>
         {
-            ["true"] = TokenType.TrueKeyword,
-            ["false"] = TokenType.FalseKeyword
+            ["int"] = TokenTypes.IntKeyword,
+            ["float"] = TokenTypes.FloatKeyword,
+            ["bool"] = TokenTypes.BoolKeyword,
+
+            ["true"] = TokenTypes.TrueKeyword,
+            ["false"] = TokenTypes.FalseKeyword
         };
 
-        public static TokenType GetSingleType(this char sym) => GetType(sym, _singleTerminals);
+        public static TokenTypes GetSingleType(this char sym) => GetType(sym, _singleTerminals);
 
-        public static TokenType GetDoubleType(this string str) => GetType(str, _doubleTerminals);
+        public static TokenTypes GetDoubleType(this string str) => GetType(str, _doubleTerminals);
 
-        public static TokenType GetKeywordType(this string str) => GetType(str, _keywords);
+        public static TokenTypes GetKeywordType(this string str) => GetType(str, _keywords);
 
-        private static TokenType GetType<TKey>(TKey key, Dictionary<TKey, TokenType> bindings)
+        private static TokenTypes GetType<TKey>(TKey key, Dictionary<TKey, TokenTypes> bindings)
         {
             if (bindings.TryGetValue(key, out var type))
                 return type;
 
-            return TokenType.Unknown;
+            return TokenTypes.Unknown;
         }
     }
 }

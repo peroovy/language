@@ -47,7 +47,10 @@
     <Compile Include="src\Compiler\CompilationState.cs" />
     <Compile Include="src\ObjectModel\Null.cs" />
     <Compile Include="src\ObjectModel\ObjectTypes.cs" />
+    <Compile Include="src\ObjectModel\Variable.cs" />
     <Compile Include="src\Operations\Binary\NumberBinaryOperation.cs" />
+    <Compile Include="src\Operations\Cast\ICastOperation.cs" />
+    <Compile Include="src\Operations\Cast\ImplicitCast.cs" />
     <Compile Include="src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Diagnostic\Diagnostic.cs" />
@@ -74,7 +77,12 @@
     <Compile Include="src\Operations\Unary\Negation.cs" />
     <Compile Include="src\Operations\Unary\Positive.cs" />
     <Compile Include="src\Operations\IUnaryOperation.cs" />
+    <Compile Include="src\ObjectModel\ObjectTypesBinder.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedDeclareVariableStatement.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedStatement.cs" />
     <Compile Include="src\StringExtensions.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxDeclareVariableStatement.cs" />
+    <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxStatement.cs" />
     <Compile Include="src\Text\SourceCode.cs" />
     <Compile Include="src\Text\TextLocation.cs" />
     <Compile Include="src\Text\TextSpan.cs" />
@@ -102,7 +110,7 @@
     <Compile Include="src\SyntaxAnalysis\Parser.cs" />
     <Compile Include="src\SemanticAnalysis\SemanticResolver.cs" />
     <Compile Include="src\LexemAnalysis\Token\Token.cs" />
-    <Compile Include="src\LexemAnalysis\Token\TokenType.cs" />
+    <Compile Include="src\LexemAnalysis\Token\TokenTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

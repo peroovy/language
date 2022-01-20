@@ -2,6 +2,10 @@
 {
     internal sealed class Int : Object
     {
+        public Int()
+        {
+        }
+
         public Int(int value)
         {
             Value = value;
@@ -12,7 +16,7 @@
             Value = (int)value;
         }
 
-        public override ObjectTypes Kind => ObjectTypes.Int;
+        public override ObjectTypes Type => ObjectTypes.Int;
         public int Value { get; }
 
         public override string ToString() => Value.ToString();

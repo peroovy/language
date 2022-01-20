@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Translator;
+using Translator.ObjectModel;
 
 namespace language
 {
-    class Program
+    public static class Program
     {
         static void Main(string[] args)
         {
+            var scope = new Dictionary<Variable, Translator.ObjectModel.Object>();
+
             while (true)
             {
                 Console.Write(">> ");
                 var code = new SourceCode(Console.ReadLine());
 
-                var compiler = new Compiler();
+                var compiler = new Compiler(scope);
                 var compilation = compiler.Compile(code);
 
                 var value = compilation.Representation;

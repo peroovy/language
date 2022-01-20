@@ -8,7 +8,7 @@ namespace Translator
 
         public Object Evaluate(Object operand)
         {
-            if (operand.Kind == ObjectTypes.Bool)
+            if (operand.Type == ObjectTypes.Bool)
                 return new Bool(!(operand as Bool).Value);
 
             throw new System.InvalidOperationException();

@@ -12,14 +12,25 @@ namespace Translator
 
         private Diagnostic _diagnostic;
 
-        public CompilationState<SyntaxExpression> Parse(SourceCode code, IReadOnlyList<Token> tokens)
+        public CompilationState<SyntaxNode> Parse(SourceCode code, IReadOnlyList<Token> tokens)
         {
             _tokens = tokens;
             _diagnostic = new Diagnostic(code);
 
-            var expession = ParseBinaryExpression();
+            SyntaxNode node = null;
 
-            return new CompilationState<SyntaxExpression>(expession, _diagnostic.Errors);
+            if (Current.Type == TokenTypes.IntKeyword 
+                || Current.Type == TokenTypes.FloatKeyword 
+                || Current.Type == TokenTypes.BoolKeyword)
+            {
+                node = ParseDeclareVariableStatement();
+            }
+            else
+            {
+                node = ParseBinaryExpression();
+            }
+
+            return new CompilationState<SyntaxNode>(node, _diagnostic.Errors);
         }
 
         private Token Current => _position < _tokens.Count ? _tokens[_position] : _tokens.Last();
@@ -27,12 +38,12 @@ namespace Translator
         private Token NextToken()
         {
             var current = Current;
-            _position += current.Type != TokenType.EOF ? 1 : 0;
+            _position += current.Type != TokenTypes.EOF ? 1 : 0;
 
             return current;
         }
 
-        private Token MatchToken(TokenType type)
+        private Token MatchToken(TokenTypes type)
         {
             if (Current.Type == type)
                 return NextToken();
@@ -41,6 +52,8 @@ namespace Translator
 
             return new Token(type, null, Current.Location);
         }
+
+        #region Expressions
 
         private SyntaxExpression ParseBinaryExpression(int parentPrecedence = 0)
         {
@@ -78,17 +91,17 @@ namespace Translator
         {
             switch (Current.Type)
             {
-                case TokenType.OpenParenthesis:
+                case TokenTypes.OpenParenthesis:
                 {
                     var openParenthesis = NextToken();
                     var expression = ParseBinaryExpression();
-                    var closeParenthesis = MatchToken(TokenType.CloseParenthesis);
+                    var closeParenthesis = MatchToken(TokenTypes.CloseParenthesis);
 
                     return new SyntaxParenthesizedExpression(openParenthesis, expression, closeParenthesis);
                 }
 
-                case TokenType.TrueKeyword:
-                case TokenType.FalseKeyword:
+                case TokenTypes.TrueKeyword:
+                case TokenTypes.FalseKeyword:
                 {
                     var value = NextToken();
 
@@ -96,12 +109,33 @@ namespace Translator
                 }
             }
 
-            var number = MatchToken(TokenType.Number);
+            var number = MatchToken(TokenTypes.Number);
             var type = number.Value == null 
                 ? ObjectTypes.Unknown 
                 : number.Value.Contains('.') ? ObjectTypes.Float : ObjectTypes.Int;
 
             return new SyntaxLiteralExpression(number, type);
         }
+
+        #endregion
+
+        #region Statement
+
+
+        private SyntaxDeclareVariableStatement ParseDeclareVariableStatement()
+        {
+            var keyword = NextToken();
+            var identifier = MatchToken(TokenTypes.Identifier);
+
+            if (Current.Type != TokenTypes.Equals)
+                return new SyntaxDeclareVariableStatement(keyword, identifier);
+
+            var op = NextToken();
+            var expression = ParseBinaryExpression();
+
+            return new SyntaxDeclareVariableStatement(keyword, identifier, op, expression);
+        }
+
+        #endregion
     }
 }

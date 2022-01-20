@@ -8,10 +8,10 @@ namespace Translator
 
         public Object Evaluate(Object operand)
         {
-            if (operand.Kind == ObjectTypes.Int)
+            if (operand.Type == ObjectTypes.Int)
                 return new Int((operand as Int).Value);
 
-            if (operand.Kind == ObjectTypes.Float)
+            if (operand.Type == ObjectTypes.Float)
                 return new Float((operand as Float).Value);
 
             throw new System.InvalidOperationException();

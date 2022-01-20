@@ -2,48 +2,48 @@
 {
     internal static class OperatorsPrecedence
     {
-        public static int? GetUnaryOperatorPrecedence(this TokenType type)
+        public static int? GetUnaryOperatorPrecedence(this TokenTypes type)
         {
             switch (type)
             {
-                case TokenType.Plus:
-                case TokenType.Minus:
+                case TokenTypes.Plus:
+                case TokenTypes.Minus:
                     return 8;
 
-                case TokenType.Bang:
+                case TokenTypes.Bang:
                     return 4;
             }
 
             return null;
         }
 
-        public static int? GetBinaryOperatorPrecedence(this TokenType type)
+        public static int? GetBinaryOperatorPrecedence(this TokenTypes type)
         {
             switch (type)
             {
-                case TokenType.DoubleStar:
+                case TokenTypes.DoubleStar:
                     return 10;
 
-                case TokenType.Star:
-                case TokenType.Slash:
+                case TokenTypes.Star:
+                case TokenTypes.Slash:
                     return 7;
 
-                case TokenType.Plus:
-                case TokenType.Minus:
+                case TokenTypes.Plus:
+                case TokenTypes.Minus:
                     return 6;
 
-                case TokenType.LeftArrow:
-                case TokenType.LeftArrowEquals:
-                case TokenType.RightArrow:
-                case TokenType.RightArrowEquals:
-                case TokenType.BangEquals:
-                case TokenType.DoubleEquals:
+                case TokenTypes.LeftArrow:
+                case TokenTypes.LeftArrowEquals:
+                case TokenTypes.RightArrow:
+                case TokenTypes.RightArrowEquals:
+                case TokenTypes.BangEquals:
+                case TokenTypes.DoubleEquals:
                     return 5;
 
-                case TokenType.DoubleOpersand:
+                case TokenTypes.DoubleOpersand:
                     return 3;
 
-                case TokenType.DoubleVerticalBar:
+                case TokenTypes.DoubleVerticalBar:
                     return 2;
             }
 

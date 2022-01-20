@@ -6,5 +6,7 @@
         ParenthesizedExpression,
         UnaryExpression,
         BinaryExpression,
+
+        DeclareVariableStatement,
     }
 }
