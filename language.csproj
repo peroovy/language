@@ -78,6 +78,7 @@
     <Compile Include="src\Operations\Unary\Positive.cs" />
     <Compile Include="src\Operations\IUnaryOperation.cs" />
     <Compile Include="src\ObjectModel\ObjectTypesBinder.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolveVariableDeclarationStatement.cs" />

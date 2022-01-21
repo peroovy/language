@@ -1,6 +1,6 @@
 ﻿namespace Translator.AST
 {
-    internal static class OperatorsPrecedence
+    internal static class OperatorPrecedences
     {
         public static int? GetUnaryOperatorPrecedence(this TokenTypes type)
         {
@@ -8,10 +8,8 @@
             {
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
-                    return 8;
-
                 case TokenTypes.Bang:
-                    return 4;
+                    return 10;
             }
 
             return null;
@@ -22,7 +20,7 @@
             switch (type)
             {
                 case TokenTypes.DoubleStar:
-                    return 10;
+                    return 9;
 
                 case TokenTypes.Star:
                 case TokenTypes.Slash:

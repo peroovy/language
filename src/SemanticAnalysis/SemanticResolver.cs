@@ -119,7 +119,7 @@ namespace Translator
 
             _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, binary.OperatorToken.Location);
 
-            return left;
+            return new ResolvedLostExpression();
         } 
 
         private ResolvedAssignmentExpression ResolveAssignmentExpression(SyntaxAssignmentExpression expression)

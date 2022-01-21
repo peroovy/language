@@ -40,6 +40,9 @@ namespace Translator
         {
             switch (expression.Kind)
             {
+                case ResolvedNodeKind.LostExpression:
+                    return null;
+
                 case ResolvedNodeKind.LiteralExpression:
                     return EvaluateLiteralExpression((ResolvedLiteralExpression)expression);
 

@@ -8,6 +8,7 @@
         UnaryExpression,
         BinaryExpression,
         AssignmentExpression,
+        LostExpression,
 
         VariableDeclarationStatement,
     }
