@@ -2,15 +2,15 @@
 
 namespace Translator
 {
-    internal sealed class SyntaxDeclareVariableStatement : SyntaxStatement
+    internal sealed class SyntaxVariableDeclarationStatement : SyntaxStatement
     {
-        public SyntaxDeclareVariableStatement(Token keyword, Token identifier)
+        public SyntaxVariableDeclarationStatement(Token keyword, Token identifier)
         {
             Keyword = keyword;
             Identifier = identifier;
         }
 
-        public SyntaxDeclareVariableStatement(Token keyword, Token identifier, Token op, SyntaxExpression expression)
+        public SyntaxVariableDeclarationStatement(Token keyword, Token identifier, Token op, SyntaxExpression expression)
         {
             Keyword = keyword;
             Identifier = identifier;
@@ -18,7 +18,7 @@ namespace Translator
             InitializedExpression = expression;
         }
 
-        public override SyntaxNodeKind Kind => SyntaxNodeKind.DeclareVariableStatement;
+        public override SyntaxNodeKind Kind => SyntaxNodeKind.VariableDeclarationStatement;
         public Token Keyword { get; }
         public Token Identifier { get; }
         public Token Operator { get; }

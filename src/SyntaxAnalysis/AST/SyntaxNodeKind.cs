@@ -3,10 +3,12 @@
     internal enum SyntaxNodeKind
     {
         LiteralExpression,
+        IdentifierExpression,
         ParenthesizedExpression,
         UnaryExpression,
         BinaryExpression,
+        AssignmentExpression,
 
-        DeclareVariableStatement,
+        VariableDeclarationStatement,
     }
 }

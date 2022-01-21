@@ -10,15 +10,14 @@
 
         public string Name { get; }
         public ObjectTypes Type { get; }
+        public Object Value { get; private set; }
 
-        public override int GetHashCode() => Name.GetHashCode();
-
-        public override bool Equals(object obj)
+        public void SetValue(Object value)
         {
-            if (obj == null || !(obj is Variable))
-                return false;
+            if (Type != value.Type)
+                throw new System.InvalidCastException();
 
-            return GetHashCode() == obj.GetHashCode();
+            Value = value;
         }
     }
 }

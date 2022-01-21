@@ -3,16 +3,16 @@ using Translator.SRT;
 
 namespace Translator
 {
-    internal sealed class ResolvedDeclareVariableStatement : ResolvedStatement
+    internal sealed class ResolveVariableDeclarationStatement : ResolvedStatement
     {
-        public ResolvedDeclareVariableStatement(Variable identifier, ResolvedExpression initializedExpression, TextLocation? equalsLocation)
+        public ResolveVariableDeclarationStatement(Variable variable, ResolvedExpression initializedExpression, TextLocation? equalsLocation)
         {
-            Variable = identifier;
+            Variable = variable;
             InitializedExpression = initializedExpression;
             EqualsLocation = equalsLocation;
         }
 
-        public override ResolvedNodeKind Kind => ResolvedNodeKind.DeclareVariableStatement;
+        public override ResolvedNodeKind Kind => ResolvedNodeKind.VariableDeclarationStatement;
         public Variable Variable { get; }
         public ResolvedExpression InitializedExpression { get; }
         public TextLocation? EqualsLocation { get; }

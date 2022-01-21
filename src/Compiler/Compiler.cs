@@ -12,9 +12,9 @@ namespace language
         private readonly SemanticResolver _resolver = new SemanticResolver();
         private readonly Evaluator _evaluator = new Evaluator();
 
-        private readonly Dictionary<Variable, Object> _scope;
+        private readonly Dictionary<string, Variable> _scope;
 
-        public Compiler(Dictionary<Variable, Object> scope)
+        public Compiler(Dictionary<string, Variable> scope)
         {
             _scope = scope;
         }

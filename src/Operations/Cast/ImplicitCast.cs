@@ -13,6 +13,9 @@ namespace Translator
 
         public Object CastTo(ObjectTypes to, Object obj)
         {
+            if (obj.Type == to)
+                return obj;
+
             if (obj.Type == ObjectTypes.Int && to == ObjectTypes.Float)
                 return new Float((obj as Int).Value);
 
@@ -21,7 +24,8 @@ namespace Translator
 
         public bool IsApplicable(ObjectTypes from, ObjectTypes to)
         {
-            return from == ObjectTypes.Int && to == ObjectTypes.Float;
+            return from == to
+                || from == ObjectTypes.Int && to == ObjectTypes.Float;
         }
     }
 }

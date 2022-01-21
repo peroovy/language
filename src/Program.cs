@@ -10,7 +10,7 @@ namespace language
     {
         static void Main(string[] args)
         {
-            var scope = new Dictionary<Variable, Translator.ObjectModel.Object>();
+            var scope = new Dictionary<string, Variable>();
 
             while (true)
             {
@@ -23,7 +23,7 @@ namespace language
                 var value = compilation.Representation;
                 var errors = compilation.Errors;
 
-                if (!errors.Any())
+                if (!errors.Any() && value != null)
                     Console.WriteLine(value);
 
                 

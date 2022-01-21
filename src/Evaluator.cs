@@ -7,9 +7,9 @@ namespace Translator
     internal sealed class Evaluator
     {
         private Diagnostic _diagnostic;
-        private Dictionary<Variable, Object> _scope; 
+        private Dictionary<string, Variable> _scope;
 
-        public CompilationState<Object> Evaluate(SourceCode code, ResolvedNode node, Dictionary<Variable, Object> scope)
+        public CompilationState<Object> Evaluate(SourceCode code, ResolvedNode node, Dictionary<string, Variable> scope)
         {
             _diagnostic = new Diagnostic(code);
             _scope = scope;
@@ -18,17 +18,17 @@ namespace Translator
 
             switch (node.Kind)
             {
-                case ResolvedNodeKind.DeclareVariableStatement:
-                {
-                    result = EvaluateStatement((ResolvedStatement)node);
-                    break;
-                }
+                case ResolvedNodeKind.VariableDeclarationStatement:
+                    {
+                        result = EvaluateStatement((ResolvedStatement)node);
+                        break;
+                    }
 
                 default:
-                {
-                    result = EvaluateExpression((ResolvedExpression)node);
-                    break;
-                }
+                    {
+                        result = EvaluateExpression((ResolvedExpression)node);
+                        break;
+                    }
             }
 
             return new CompilationState<Object>(result, _diagnostic.Errors);
@@ -43,6 +43,9 @@ namespace Translator
                 case ResolvedNodeKind.LiteralExpression:
                     return EvaluateLiteralExpression((ResolvedLiteralExpression)expression);
 
+                case ResolvedNodeKind.IdentifierExpression:
+                    return EvaluateIdentifierExpression((ResolvedIdentifierExpression)expression);
+
                 case ResolvedNodeKind.ParenthesizedExpression:
                     return EvaluateExpression((expression as ResolvedParenthesizedExpression).Expression);
 
@@ -51,6 +54,9 @@ namespace Translator
 
                 case ResolvedNodeKind.BinaryExpression:
                     return EvaluateBinaryExpression((ResolvedBinaryExpression)expression);
+
+                case ResolvedNodeKind.AssignmentExpression:
+                    return EvaluateAssignmentExpression((ResolvedAssignmentExpression)expression);
             }
 
             throw new System.Exception($"Unknown '{expression.Kind}' is not evaluated");
@@ -79,6 +85,11 @@ namespace Translator
             throw new System.Exception($"Unknown evaluation of {literal.Type} literal");
         }
 
+        private Object EvaluateIdentifierExpression(ResolvedIdentifierExpression expression)
+        {
+            return expression.Variable?.Value ?? null;
+        }
+
         private Object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
         {
             var operand = EvaluateExpression(unary.Operand);
@@ -93,13 +104,29 @@ namespace Translator
 
             var result = binary.Operation.Evaluate(left, right);
 
-            if (binary.Operation.Kind == BinaryOperationKind.Division
-                && result is null)
+            if (binary.Operation.Kind == BinaryOperationKind.Division && result is null)
             {
                 _diagnostic.ReportDivisionByZero(binary.OperatorLocation);
             }
 
             return result;
+        }
+
+        private Object EvaluateAssignmentExpression(ResolvedAssignmentExpression expression)
+        {
+            var variable = expression.Variable;
+            var value = EvaluateExpression(expression.Expression);
+
+            if (variable == null || value == null)
+            {
+                _diagnostic.ReportCannotAssignValueError(expression.EqualsLocation);
+
+                return null;
+            }
+            
+            variable.SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
+
+            return value;
         }
 
         #endregion
@@ -110,37 +137,33 @@ namespace Translator
         {
             switch (statement.Kind)
             {
-                case ResolvedNodeKind.DeclareVariableStatement:
-                    return EvaluateDeclareVariableStatement((ResolvedDeclareVariableStatement)statement);
+                case ResolvedNodeKind.VariableDeclarationStatement:
+                    return EvaluateVariableDeclarationStatement((ResolveVariableDeclarationStatement)statement);
             }
 
             throw new System.Exception($"Unknown '{statement.Kind}' is not evaluated");
         }
 
-        private Object EvaluateDeclareVariableStatement(ResolvedDeclareVariableStatement statement)
+        private Object EvaluateVariableDeclarationStatement(ResolveVariableDeclarationStatement statement)
         {
             var variable = statement.Variable;
+
             if (variable == null)
+            {
+                if (statement.EqualsLocation != null)
+                    _diagnostic.ReportCannotAssignValueError(statement.EqualsLocation.Value);
+
                 return null;
+            }
 
             var value = statement.InitializedExpression == null 
                 ? Object.Create(variable.Type) 
                 : EvaluateExpression(statement.InitializedExpression);
 
             if (variable.Type != value.Type)
-            {
-                if (ImplicitCast.Instance.IsApplicable(value.Type, variable.Type))
-                {
-                    value = ImplicitCast.Instance.CastTo(variable.Type, value);
-                }
-                else
-                {
-                    _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, statement.EqualsLocation.Value);
-                    value = null;
-                }
-            }
+                value = ImplicitCast.Instance.CastTo(variable.Type, value);
 
-            _scope[variable] = value ?? Object.Create(variable.Type);
+            _scope[variable.Name].SetValue(value);
 
             return null;
         }

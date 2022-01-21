@@ -2,11 +2,13 @@
 {
     internal enum ResolvedNodeKind
     {
-        BinaryExpression,
-        UnaryExpression,
-        ParenthesizedExpression,
         LiteralExpression,
+        IdentifierExpression,
+        ParenthesizedExpression,
+        UnaryExpression,
+        BinaryExpression,
+        AssignmentExpression,
 
-        DeclareVariableStatement
+        VariableDeclarationStatement,
     }
 }

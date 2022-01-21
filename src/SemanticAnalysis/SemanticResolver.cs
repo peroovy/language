@@ -8,9 +8,9 @@ namespace Translator
     internal sealed class SemanticResolver
     {
         private Diagnostic _diagnostic;
-        private Dictionary<Variable, Object> _scope;
+        private Dictionary<string, Variable> _scope;
 
-        public CompilationState<ResolvedNode> Resolve(SourceCode code, SyntaxNode node, Dictionary<Variable, Object> scope)
+        public CompilationState<ResolvedNode> Resolve(SourceCode code, SyntaxNode node, Dictionary<string, Variable> scope)
         {
             _diagnostic = new Diagnostic(code);
             _scope = scope;
@@ -19,7 +19,7 @@ namespace Translator
 
             switch (node.Kind)
             {
-                case SyntaxNodeKind.DeclareVariableStatement:
+                case SyntaxNodeKind.VariableDeclarationStatement:
                 {
                     resolvedNode = ResolveStatement((SyntaxStatement)node);
                     break;
@@ -44,6 +44,9 @@ namespace Translator
                 case SyntaxNodeKind.LiteralExpression:
                     return ResolveLiteralExpression((SyntaxLiteralExpression)expression);
 
+                case SyntaxNodeKind.IdentifierExpression:
+                    return ResolveIdentifierExpression((SyntaxIdentifierExpression)expression);
+
                 case SyntaxNodeKind.ParenthesizedExpression:
                     return ResolveParenthesizedExpression((SyntaxParenthesizedExpression)expression);
 
@@ -52,6 +55,9 @@ namespace Translator
 
                 case SyntaxNodeKind.BinaryExpression:
                     return ResolveBinaryExpression((SyntaxBinaryExpression)expression);
+
+                case SyntaxNodeKind.AssignmentExpression:
+                    return ResolveAssignmentExpression((SyntaxAssignmentExpression)expression);
             }
 
             throw new System.Exception($"Expression '{expression.Kind}' is not resolved");
@@ -60,6 +66,20 @@ namespace Translator
         private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression literal)
         {
             return new ResolvedLiteralExpression(literal.Token.Value, literal.ObjectType);
+        }
+
+        private ResolvedIdentifierExpression ResolveIdentifierExpression(SyntaxIdentifierExpression expression)
+        {
+            var identifier = expression.Name;
+
+            if (!_scope.TryGetValue(identifier.Value, out var variable))
+            {
+                _diagnostic.ReportUndefinedVariableError(identifier.Value, identifier.Location);
+
+                return new ResolvedIdentifierExpression(null);
+            }
+
+            return new ResolvedIdentifierExpression(variable);
         }
 
         private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression parentheses)
@@ -100,6 +120,27 @@ namespace Translator
             _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, binary.OperatorToken.Location);
 
             return left;
+        } 
+
+        private ResolvedAssignmentExpression ResolveAssignmentExpression(SyntaxAssignmentExpression expression)
+        {
+            var value = ResolveExpression(expression.Expression);
+
+            if (!_scope.TryGetValue(expression.Identifier.Value, out var variable))
+            {
+                _diagnostic.ReportUndefinedVariableError(expression.Identifier.Value, expression.Identifier.Location);
+
+                return new ResolvedAssignmentExpression(null, value, expression.Operator.Location);
+            }
+
+            if (!ImplicitCast.Instance.IsApplicable(value.Type, variable.Type))
+            {
+                _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, expression.Operator.Location);
+
+                return new ResolvedAssignmentExpression(null, value, expression.Operator.Location);
+            }
+
+            return new ResolvedAssignmentExpression(variable, value, expression.Operator.Location);
         }
 
         #endregion
@@ -110,14 +151,14 @@ namespace Translator
         {
             switch (statement.Kind)
             {
-                case SyntaxNodeKind.DeclareVariableStatement:
-                    return ResolveDeclareVariableStatement((SyntaxDeclareVariableStatement)statement);
+                case SyntaxNodeKind.VariableDeclarationStatement:
+                    return ResolveVariableDeclarationStatement((SyntaxVariableDeclarationStatement)statement);
             }
 
             throw new System.Exception($"Statement '{statement.Kind}' is not resolved");
         }
 
-        private ResolvedDeclareVariableStatement ResolveDeclareVariableStatement(SyntaxDeclareVariableStatement statement)
+        private ResolveVariableDeclarationStatement ResolveVariableDeclarationStatement(SyntaxVariableDeclarationStatement statement)
         {
             var keyword = statement.Keyword;
             var identifier = statement.Identifier;
@@ -126,25 +167,30 @@ namespace Translator
             if (type == ObjectTypes.Unknown)
                 _diagnostic.ReportUndefinedTypeError(keyword.Value, keyword.Location);
 
-            var variable = new Variable(identifier.Value, type);
-            ResolvedExpression initExpression = null;
-
-            if (statement.InitializedExpression != null)
-                initExpression = ResolveExpression(statement.InitializedExpression);
+            var initExpression = statement.InitializedExpression != null
+                ? ResolveExpression(statement.InitializedExpression)
+                : null;
 
             if (identifier.Value == null)
-                return new ResolvedDeclareVariableStatement(null, initExpression, statement.Operator?.Location);
+                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
 
-            if (_scope.ContainsKey(variable))
+            if (_scope.ContainsKey(identifier.Value))
             {
                 _diagnostic.ReportVariableAlreadyExistError(identifier.Value, identifier.Location);
 
-                return new ResolvedDeclareVariableStatement(null, initExpression, statement.Operator?.Location);
+                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
             }
 
-            _scope.Add(variable, null);
+            if (initExpression != null && !ImplicitCast.Instance.IsApplicable(initExpression.Type, type))
+            {
+                _diagnostic.ReportImpossibleImplicitCast(initExpression.Type, type, statement.Operator.Location);
 
-            return new ResolvedDeclareVariableStatement(variable, initExpression, statement.Operator?.Location);
+                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
+            }
+
+            _scope[identifier.Value] = new Variable(identifier.Value, type);
+
+            return new ResolveVariableDeclarationStatement(_scope[identifier.Value], initExpression, statement.Operator?.Location);
         }
 
         #endregion

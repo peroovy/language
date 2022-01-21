@@ -78,6 +78,20 @@ namespace Translator
             Report(message, equalsLocation);
         }
 
+        public void ReportUndefinedVariableError(string identifier, TextLocation location)
+        {
+            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): Variable '{identifier}' doesn's exist";
+
+            Report(message, location);
+        }
+
+        public void ReportCannotAssignValueError(TextLocation equalsLocation)
+        {
+            var message = $"ERROR({equalsLocation.NumberLine}, {equalsLocation.Span.Start}): Сannot be assigned a value";
+
+            Report(message, equalsLocation);
+        }
+
         private void Report(string message, TextLocation location)
         {
             var line = _code.Lines[location.NumberLine];
