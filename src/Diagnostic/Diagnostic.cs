@@ -73,7 +73,7 @@ namespace Translator
 
         public void ReportImpossibleImplicitCast(ObjectTypes from,  ObjectTypes to, TextLocation equalsLocation)
         {
-            var message = $"ERROR({equalsLocation.NumberLine}, {equalsLocation.Span.Start}): Cannot implicitly convert type from '{from}' to '{to}'";
+            var message = $"ERROR({equalsLocation.NumberLine}, {equalsLocation.Span.Start}): Type '{from}' cannot be converted implicitly to '{to}'";
 
             Report(message, equalsLocation);
         }

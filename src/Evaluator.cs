@@ -119,13 +119,6 @@ namespace Translator
         {
             var variable = expression.Variable;
             var value = EvaluateExpression(expression.Expression);
-
-            if (variable == null || value == null)
-            {
-                _diagnostic.ReportCannotAssignValueError(expression.EqualsLocation);
-
-                return null;
-            }
             
             variable.SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
 

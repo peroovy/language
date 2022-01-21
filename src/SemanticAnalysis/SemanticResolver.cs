@@ -68,7 +68,7 @@ namespace Translator
             return new ResolvedLiteralExpression(literal.Token.Value, literal.ObjectType);
         }
 
-        private ResolvedIdentifierExpression ResolveIdentifierExpression(SyntaxIdentifierExpression expression)
+        private ResolvedExpression ResolveIdentifierExpression(SyntaxIdentifierExpression expression)
         {
             var identifier = expression.Name;
 
@@ -76,7 +76,7 @@ namespace Translator
             {
                 _diagnostic.ReportUndefinedVariableError(identifier.Value, identifier.Location);
 
-                return new ResolvedIdentifierExpression(null);
+                return new ResolvedLostExpression();
             }
 
             return new ResolvedIdentifierExpression(variable);
@@ -102,7 +102,7 @@ namespace Translator
 
             _diagnostic.ReportUndefinedUnaryOperationForType(operation.Kind, operand.Type, unary.OperatorToken.Location);
 
-            return operand;
+            return new ResolvedLostExpression();
         }
 
         private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression binary)
@@ -122,7 +122,7 @@ namespace Translator
             return new ResolvedLostExpression();
         } 
 
-        private ResolvedAssignmentExpression ResolveAssignmentExpression(SyntaxAssignmentExpression expression)
+        private ResolvedExpression ResolveAssignmentExpression(SyntaxAssignmentExpression expression)
         {
             var value = ResolveExpression(expression.Expression);
 
@@ -130,14 +130,14 @@ namespace Translator
             {
                 _diagnostic.ReportUndefinedVariableError(expression.Identifier.Value, expression.Identifier.Location);
 
-                return new ResolvedAssignmentExpression(null, value, expression.Operator.Location);
+                return new ResolvedLostExpression();
             }
 
             if (!ImplicitCast.Instance.IsApplicable(value.Type, variable.Type))
             {
                 _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, expression.Operator.Location);
 
-                return new ResolvedAssignmentExpression(null, value, expression.Operator.Location);
+                return new ResolvedLostExpression();
             }
 
             return new ResolvedAssignmentExpression(variable, value, expression.Operator.Location);
