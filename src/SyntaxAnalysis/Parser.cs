@@ -19,20 +19,18 @@ namespace Translator
             _tokens = tokens;
             _diagnostic = new Diagnostic(code);
 
-            SyntaxNode node = null;
-
             if (Current.Type == TokenTypes.IntKeyword 
                 || Current.Type == TokenTypes.FloatKeyword 
                 || Current.Type == TokenTypes.BoolKeyword)
             {
-                node = ParseStatement();
-            }
-            else
-            {
-                node = ParseExpression();
+                var statement = ParseStatement();
+
+                return new CompilationState<SyntaxNode>(statement, _diagnostic.Errors);
             }
 
-            return new CompilationState<SyntaxNode>(node, _diagnostic.Errors);
+            var expression = ParseExpression();
+
+            return new CompilationState<SyntaxNode>(expression, _diagnostic.Errors);
         }
 
         private Token Peek(int offset)
@@ -169,7 +167,7 @@ namespace Translator
                 return new SyntaxVariableDeclarationStatement(keyword, identifier);
 
             var op = NextToken();
-            var expression = ParseBinaryExpression();
+            var expression = ParseExpression();
 
             return new SyntaxVariableDeclarationStatement(keyword, identifier, op, expression);
         }

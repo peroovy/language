@@ -2,15 +2,15 @@
 
 namespace Translator
 {
-    internal sealed class CompilationState<TCodeRepresentation>
+    internal sealed class CompilationState<TValue>
     {
-        public CompilationState(TCodeRepresentation representation, IEnumerable<Error> errors)
+        public CompilationState(TValue value, IEnumerable<Error> errors)
         {
-            Representation = representation;
+            Value = value;
             Errors = errors;
         }
 
-        public TCodeRepresentation Representation { get; }
+        public TValue Value { get; }
         public IEnumerable<Error> Errors { get; }
     }
 }

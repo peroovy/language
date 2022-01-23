@@ -7,28 +7,28 @@ namespace Translator
         private static readonly Dictionary<TokenTypes, IUnaryOperation> _unaryOperatorsBindings = 
             new Dictionary<TokenTypes, IUnaryOperation>
         {
-            [TokenTypes.Plus] = new Positive(),
-            [TokenTypes.Minus] = new Negation(),
-            [TokenTypes.Bang] = new LogicalNegation() 
+            [TokenTypes.Plus] = Positive.Instance,
+            [TokenTypes.Minus] = Negation.Instance,
+            [TokenTypes.Bang] = LogicalNegation.Instance 
         };
 
         private static readonly Dictionary<TokenTypes, IBinaryOperation> _binaryOperatorsBindings = 
             new Dictionary<TokenTypes, IBinaryOperation>
         {
-            [TokenTypes.Plus] = new Addition(),
-            [TokenTypes.Minus] = new Subtraction(),
-            [TokenTypes.Star] = new Multiplication(),
-            [TokenTypes.Slash] = new Division(),
-            [TokenTypes.DoubleStar] = new Exponentiation(),
+            [TokenTypes.Plus] = Addition.Instance,
+            [TokenTypes.Minus] = Subtraction.Instance,
+            [TokenTypes.Star] = Multiplication.Instance,
+            [TokenTypes.Slash] = Division.Instance,
+            [TokenTypes.DoubleStar] = Exponentiation.Instance,
 
-            [TokenTypes.LeftArrow] = new Less(),
-            [TokenTypes.LeftArrowEquals] = new LessOrEquality(),
-            [TokenTypes.RightArrow] = new More(),
-            [TokenTypes.RightArrowEquals] = new MoreOrEquality(),
-            [TokenTypes.DoubleEquals] = new Equality(),
-            [TokenTypes.BangEquals] = new NotEquality(),
-            [TokenTypes.DoubleOpersand] = new LogicalAnd(),
-            [TokenTypes.DoubleVerticalBar] = new LogicalOr()
+            [TokenTypes.LeftArrow] = Less.Instance,
+            [TokenTypes.LeftArrowEquals] = LessOrEquality.Instance,
+            [TokenTypes.RightArrow] = More.Instance,
+            [TokenTypes.RightArrowEquals] = MoreOrEquality.Instance,
+            [TokenTypes.DoubleEquals] = Equality.Instance,
+            [TokenTypes.BangEquals] = NotEquality.Instance,
+            [TokenTypes.DoubleOpersand] = LogicalAnd.Instance,
+            [TokenTypes.DoubleVerticalBar] = LogicalOr.Instance
         };
 
         public static IUnaryOperation ToUnaryOperation(this TokenTypes type) => 

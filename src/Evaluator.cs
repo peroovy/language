@@ -14,24 +14,20 @@ namespace Translator
             _diagnostic = new Diagnostic(code);
             _scope = scope;
 
-            Object result = null;
-
             switch (node.Kind)
             {
                 case ResolvedNodeKind.VariableDeclarationStatement:
-                    {
-                        result = EvaluateStatement((ResolvedStatement)node);
-                        break;
-                    }
+                case ResolvedNodeKind.LostStatement:
+                {
+                    var statement = EvaluateStatement((ResolvedStatement)node);
 
-                default:
-                    {
-                        result = EvaluateExpression((ResolvedExpression)node);
-                        break;
-                    }
+                    return new CompilationState<Object>(statement, _diagnostic.Errors);
+                }
             }
 
-            return new CompilationState<Object>(result, _diagnostic.Errors);
+            var value = EvaluateExpression((ResolvedExpression)node);
+
+            return new CompilationState<Object>(value, _diagnostic.Errors);
         }
 
         #region Expressions
@@ -40,9 +36,6 @@ namespace Translator
         {
             switch (expression.Kind)
             {
-                case ResolvedNodeKind.LostExpression:
-                    return null;
-
                 case ResolvedNodeKind.LiteralExpression:
                     return EvaluateLiteralExpression((ResolvedLiteralExpression)expression);
 
@@ -60,6 +53,9 @@ namespace Translator
 
                 case ResolvedNodeKind.AssignmentExpression:
                     return EvaluateAssignmentExpression((ResolvedAssignmentExpression)expression);
+
+                case ResolvedNodeKind.LostExpression:
+                    return null;
             }
 
             throw new System.Exception($"Unknown '{expression.Kind}' is not evaluated");
@@ -90,7 +86,7 @@ namespace Translator
 
         private Object EvaluateIdentifierExpression(ResolvedIdentifierExpression expression)
         {
-            return expression.Variable?.Value ?? null;
+            return expression.Variable.Value;
         }
 
         private Object EvaluateUnaryExpression(ResolvedUnaryExpression unary)
@@ -105,14 +101,12 @@ namespace Translator
             var left = EvaluateExpression(binary.Left);
             var right = EvaluateExpression(binary.Right);
 
-            var result = binary.Operation.Evaluate(left, right);
+            var value = binary.Operation.Evaluate(left, right);
 
-            if (binary.Operation.Kind == BinaryOperationKind.Division && result is null)
-            {
+            if (value is null && binary.Operation.Kind == BinaryOperationKind.Division)
                 _diagnostic.ReportDivisionByZero(binary.OperatorLocation);
-            }
 
-            return result;
+            return value;
         }
 
         private Object EvaluateAssignmentExpression(ResolvedAssignmentExpression expression)
@@ -134,32 +128,23 @@ namespace Translator
             switch (statement.Kind)
             {
                 case ResolvedNodeKind.VariableDeclarationStatement:
-                    return EvaluateVariableDeclarationStatement((ResolveVariableDeclarationStatement)statement);
+                    return EvaluateVariableDeclarationStatement((ResolvedVariableDeclarationStatement)statement);
+
+                case ResolvedNodeKind.LostStatement:
+                    return null;
             }
 
             throw new System.Exception($"Unknown '{statement.Kind}' is not evaluated");
         }
 
-        private Object EvaluateVariableDeclarationStatement(ResolveVariableDeclarationStatement statement)
+        private Object EvaluateVariableDeclarationStatement(ResolvedVariableDeclarationStatement statement)
         {
             var variable = statement.Variable;
-
-            if (variable == null)
-            {
-                if (statement.EqualsLocation != null)
-                    _diagnostic.ReportCannotAssignValueError(statement.EqualsLocation.Value);
-
-                return null;
-            }
-
             var value = statement.InitializedExpression == null 
                 ? Object.Create(variable.Type) 
                 : EvaluateExpression(statement.InitializedExpression);
 
-            if (variable.Type != value.Type)
-                value = ImplicitCast.Instance.CastTo(variable.Type, value);
-
-            _scope[variable.Name].SetValue(value);
+            _scope[variable.Name].SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
 
             return null;
         }

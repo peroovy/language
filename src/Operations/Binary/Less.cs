@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Less : IBinaryOperation
     {
+        private Less() { }
+
+        static Less()
+        {
+            Instance = new Less();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.Less;
+
+        public static Less Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {

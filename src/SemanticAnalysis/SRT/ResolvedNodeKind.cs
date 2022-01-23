@@ -11,5 +11,6 @@
         LostExpression,
 
         VariableDeclarationStatement,
+        LostStatement,
     }
 }

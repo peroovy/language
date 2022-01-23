@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Negation : IUnaryOperation
     {
+        private Negation() { }
+
+        static Negation()
+        {
+            Instance = new Negation();
+        }
+
         public UnaryOperationKind Kind => UnaryOperationKind.Negation;
+
+        public static Negation Instance { get; }
 
         public Object Evaluate(Object operand)
         {

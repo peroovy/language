@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class MoreOrEquality : IBinaryOperation
     {
+        private MoreOrEquality() { }
+
+        static MoreOrEquality()
+        {
+            Instance = new MoreOrEquality();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.MoreOrEquality;
+
+        public static MoreOrEquality Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {

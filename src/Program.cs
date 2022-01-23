@@ -8,7 +8,7 @@ namespace language
 {
     public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var scope = new Dictionary<string, Variable>();
 
@@ -20,7 +20,7 @@ namespace language
                 var compiler = new Compiler(scope);
                 var compilation = compiler.Compile(code);
 
-                var value = compilation.Representation;
+                var value = compilation.Value;
                 var errors = compilation.Errors;
 
                 if (!errors.Any() && value != null)

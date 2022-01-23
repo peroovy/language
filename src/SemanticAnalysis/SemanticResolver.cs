@@ -15,24 +15,19 @@ namespace Translator
             _diagnostic = new Diagnostic(code);
             _scope = scope;
 
-            ResolvedNode resolvedNode = null;
-
             switch (node.Kind)
             {
                 case SyntaxNodeKind.VariableDeclarationStatement:
                 {
-                    resolvedNode = ResolveStatement((SyntaxStatement)node);
-                    break;
-                }
+                    var statement = ResolveStatement((SyntaxStatement)node);
 
-                default:
-                {
-                    resolvedNode = ResolveExpression((SyntaxExpression)node);
-                    break;
+                    return new CompilationState<ResolvedNode>(statement, _diagnostic.Errors);
                 }
             }
 
-            return new CompilationState<ResolvedNode>(resolvedNode, _diagnostic.Errors);
+            var expression = ResolveExpression((SyntaxExpression)node);
+
+            return new CompilationState<ResolvedNode>(expression, _diagnostic.Errors);
         }
 
         #region Expressions
@@ -70,9 +65,9 @@ namespace Translator
 
         private ResolvedExpression ResolveIdentifierExpression(SyntaxIdentifierExpression expression)
         {
-            var identifier = expression.Name;
+            Token identifier = expression.Name;
 
-            if (!_scope.TryGetValue(identifier.Value, out var variable))
+            if (!_scope.TryGetValue(identifier.Value, out Variable variable))
             {
                 _diagnostic.ReportUndefinedVariableError(identifier.Value, identifier.Location);
 
@@ -84,15 +79,15 @@ namespace Translator
 
         private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression parentheses)
         {
-            var resolvedExpression = ResolveExpression(parentheses.Expression);
+            var expression = ResolveExpression(parentheses.Expression);
 
-            return new ResolvedParenthesizedExpression(resolvedExpression);
+            return new ResolvedParenthesizedExpression(expression);
         }
 
         private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression unary)
         {
+            IUnaryOperation operation = unary.OperatorToken.Type.ToUnaryOperation();
             var operand = ResolveExpression(unary.Operand);
-            var operation = unary.OperatorToken.Type.ToUnaryOperation();
 
             if (operation is null)
                 throw new System.Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
@@ -109,7 +104,7 @@ namespace Translator
         {
             var left = ResolveExpression(binary.Left);
             var right = ResolveExpression(binary.Right);
-            var operation = binary.OperatorToken.Type.ToBinaryOperation();
+            IBinaryOperation operation = binary.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
                 throw new System.Exception($"The binary operator '{binary.OperatorToken.Value}' is not resolved");
@@ -158,12 +153,12 @@ namespace Translator
             throw new System.Exception($"Statement '{statement.Kind}' is not resolved");
         }
 
-        private ResolveVariableDeclarationStatement ResolveVariableDeclarationStatement(SyntaxVariableDeclarationStatement statement)
+        private ResolvedStatement ResolveVariableDeclarationStatement(SyntaxVariableDeclarationStatement statement)
         {
-            var keyword = statement.Keyword;
-            var identifier = statement.Identifier;
+            Token keyword = statement.Keyword;
+            Token identifier = statement.Identifier;
 
-            var type = statement.Keyword.Type.GetVariableType();
+            ObjectTypes type = statement.Keyword.Type.GetVariableType();
             if (type == ObjectTypes.Unknown)
                 _diagnostic.ReportUndefinedTypeError(keyword.Value, keyword.Location);
 
@@ -172,25 +167,25 @@ namespace Translator
                 : null;
 
             if (identifier.Value == null)
-                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
+                return new ResolvedLostStatement();
 
             if (_scope.ContainsKey(identifier.Value))
             {
                 _diagnostic.ReportVariableAlreadyExistError(identifier.Value, identifier.Location);
 
-                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
+                return new ResolvedLostStatement();
             }
 
             if (initExpression != null && !ImplicitCast.Instance.IsApplicable(initExpression.Type, type))
             {
                 _diagnostic.ReportImpossibleImplicitCast(initExpression.Type, type, statement.Operator.Location);
 
-                return new ResolveVariableDeclarationStatement(null, null, statement.Operator?.Location);
+                return new ResolvedLostStatement();
             }
 
             _scope[identifier.Value] = new Variable(identifier.Value, type);
 
-            return new ResolveVariableDeclarationStatement(_scope[identifier.Value], initExpression, statement.Operator?.Location);
+            return new ResolvedVariableDeclarationStatement(_scope[identifier.Value], initExpression, statement.Operator?.Location);
         }
 
         #endregion

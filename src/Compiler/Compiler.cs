@@ -22,16 +22,16 @@ namespace language
         public CompilationState<Object> Compile(SourceCode code)
         {
             var lexicalAnalysis = _lexer.Tokenize(code);
-            var syntaxAnalysis = _parser.Parse(code, lexicalAnalysis.Representation);
-            var semanticAnalysis = _resolver.Resolve(code, syntaxAnalysis.Representation, _scope);
-            var evaluation = _evaluator.Evaluate(code, semanticAnalysis.Representation, _scope);
+            var syntaxAnalysis = _parser.Parse(code, lexicalAnalysis.Value);
+            var semanticAnalysis = _resolver.Resolve(code, syntaxAnalysis.Value, _scope);
+            var evaluation = _evaluator.Evaluate(code, semanticAnalysis.Value, _scope);
 
             var errors = lexicalAnalysis.Errors
                 .Concat(syntaxAnalysis.Errors)
                 .Concat(semanticAnalysis.Errors)
                 .Concat(evaluation.Errors);
 
-            return new CompilationState<Object>(evaluation.Representation, errors);
+            return new CompilationState<Object>(evaluation.Value, errors);
         }
     }
 }

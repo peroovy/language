@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Addition : NumberBinaryOperation
     {
+        private Addition() { }
+
+        static Addition()
+        {
+            Instance = new Addition();
+        }
+
         public override BinaryOperationKind Kind => BinaryOperationKind.Addition;
+
+        public static Addition Instance { get; }
 
         public override Object Evaluate(Object left, Object right)
         {

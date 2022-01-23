@@ -7,7 +7,7 @@ namespace Translator
     internal sealed class Lexer
     {
         private readonly Regex _numberRegex = new Regex(@"([0-9]*[.])?[0-9]+");
-        private readonly Regex _wordRegex = new Regex(@"_*([a-z]|[A-Z]|[а-я]|[А-Я])\w*");
+        private readonly Regex _wordRegex = new Regex(@"_*([A-z]|[А-я]|[0-9])*");
 
         private string _code;
         private int _position;
@@ -78,7 +78,7 @@ namespace Translator
             if (TryNextDoubleToken(out var token))
                 return token;
 
-            var single = Current.GetSingleType();
+            TokenTypes single = Current.GetSingleType();
             var value = Current.ToString();
 
             token = new Token(single, value, _positionInLine, _numberLine);
@@ -105,7 +105,7 @@ namespace Translator
                 .Match(_code, _position)
                 .ToString();
 
-            var type = word.GetKeywordType();
+            TokenTypes type = word.GetKeywordType();
             if (type == TokenTypes.Unknown)
                 type = TokenTypes.Identifier;
 
@@ -134,7 +134,7 @@ namespace Translator
         private bool TryNextDoubleToken(out Token token)
         {
             var value = new string(new[] { Peek(0), Peek(1) });
-            var type = value.GetDoubleType();
+            TokenTypes type = value.GetDoubleType();
             token = new Token(type, value, _positionInLine, _numberLine);
 
             if (type != TokenTypes.Unknown)

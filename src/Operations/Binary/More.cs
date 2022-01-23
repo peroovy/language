@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class More : IBinaryOperation
     {
+        private More() { }
+
+        static More()
+        {
+            Instance = new More();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.More;
+
+        public static More Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {

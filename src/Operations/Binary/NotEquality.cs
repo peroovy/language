@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class NotEquality : IBinaryOperation
     {
+        private NotEquality() { }
+
+        static NotEquality()
+        {
+            Instance = new NotEquality();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.NotEquality;
+
+        public static NotEquality Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {

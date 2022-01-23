@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Equality : IBinaryOperation
     {
+        private Equality() { }
+
+        static Equality()
+        {
+            Instance = new Equality();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.Equality;
+
+        public static Equality Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         { 

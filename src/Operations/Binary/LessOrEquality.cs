@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class LessOrEquality : IBinaryOperation
     {
+        private LessOrEquality() { }
+
+        static LessOrEquality()
+        {
+            Instance = new LessOrEquality();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.LessOrEquality;
+
+        public static LessOrEquality Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {

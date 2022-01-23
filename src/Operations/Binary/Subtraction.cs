@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Subtraction : NumberBinaryOperation
     {
+        private Subtraction() { }
+
+        static Subtraction()
+        {
+            Instance = new Subtraction();
+        }
+
         public override BinaryOperationKind Kind => BinaryOperationKind.Subtraction;
+
+        public static Subtraction Instance { get; }
 
         public override Object Evaluate(Object left, Object right)
         {

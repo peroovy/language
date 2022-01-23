@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Multiplication : NumberBinaryOperation
     {
+        private Multiplication() { }
+
+        static Multiplication()
+        {
+            Instance = new Multiplication();
+        }
+
         public override BinaryOperationKind Kind => BinaryOperationKind.Multiplication;
+
+        public static Multiplication Instance { get; }
 
         public override Object Evaluate(Object left, Object right)
         {

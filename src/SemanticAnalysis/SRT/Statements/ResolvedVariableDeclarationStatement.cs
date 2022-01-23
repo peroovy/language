@@ -3,9 +3,9 @@ using Translator.SRT;
 
 namespace Translator
 {
-    internal sealed class ResolveVariableDeclarationStatement : ResolvedStatement
+    internal sealed class ResolvedVariableDeclarationStatement : ResolvedStatement
     {
-        public ResolveVariableDeclarationStatement(Variable variable, ResolvedExpression initializedExpression, TextLocation? equalsLocation)
+        public ResolvedVariableDeclarationStatement(Variable variable, ResolvedExpression initializedExpression, TextLocation? equalsLocation)
         {
             Variable = variable;
             InitializedExpression = initializedExpression;

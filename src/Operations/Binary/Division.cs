@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Division : NumberBinaryOperation
     {
+        private Division() { }
+
+        static Division()
+        {
+            Instance = new Division();
+        }
+
         public override BinaryOperationKind Kind => BinaryOperationKind.Division;
+
+        public static Division Instance { get; }
 
         public override Object Evaluate(Object left, Object right)
         {

@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Exponentiation : NumberBinaryOperation
     {
+        private Exponentiation() { }
+
+        static Exponentiation()
+        {
+            Instance = new Exponentiation(); 
+        }
+
         public override BinaryOperationKind Kind => BinaryOperationKind.Exponentiation;
+
+        public static Exponentiation Instance { get; }
 
         public override Object Evaluate(Object left, Object right)
         {

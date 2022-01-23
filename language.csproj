@@ -81,7 +81,8 @@
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolveVariableDeclarationStatement.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedLostStatement.cs" />
+    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedVariableDeclarationStatement.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedStatement.cs" />
     <Compile Include="src\StringExtensions.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxAssignmentExpression.cs" />

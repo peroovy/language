@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class Positive : IUnaryOperation
     {
+        private Positive() { }
+
+        static Positive()
+        {
+            Instance = new Positive();
+        }
+
         public UnaryOperationKind Kind => UnaryOperationKind.Negation;
+
+        public static Positive Instance { get; }
 
         public Object Evaluate(Object operand)
         {

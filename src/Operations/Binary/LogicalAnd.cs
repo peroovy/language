@@ -4,7 +4,16 @@ namespace Translator
 {
     internal sealed class LogicalAnd : IBinaryOperation
     {
+        private LogicalAnd() { }
+
+        static LogicalAnd()
+        {
+            Instance = new LogicalAnd();
+        }
+
         public BinaryOperationKind Kind => BinaryOperationKind.LogicalAnd;
+
+        public static LogicalAnd Instance { get; }
 
         public Object Evaluate(Object left, Object right)
         {
