@@ -77,7 +77,7 @@
     <Compile Include="src\Operations\Unary\Negation.cs" />
     <Compile Include="src\Operations\Unary\Positive.cs" />
     <Compile Include="src\Operations\IUnaryOperation.cs" />
-    <Compile Include="src\ObjectModel\ObjectTypesBinder.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Extensions\ObjectTypesBinder.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
@@ -89,12 +89,12 @@
     <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxVariableDeclarationStatement.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxStatement.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxIdentifierExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\OperatorPrecedences.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Extensions\OperatorPrecedences.cs" />
     <Compile Include="src\Text\SourceCode.cs" />
     <Compile Include="src\Text\TextLocation.cs" />
     <Compile Include="src\Text\TextSpan.cs" />
-    <Compile Include="src\LexemAnalysis\Token\TokenTypesBinder.cs" />
-    <Compile Include="src\Operations\OperatorsBinder.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Extensions\TokenTypesBinder.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Extensions\OperatorsBinder.cs" />
     <Compile Include="src\Operations\BinaryOperationKind.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />

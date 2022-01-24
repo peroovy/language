@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Translator.ObjectModel;
 
-namespace Translator.ObjectModel
+namespace Translator
 {
     internal static class ObjectTypesBinder
     {

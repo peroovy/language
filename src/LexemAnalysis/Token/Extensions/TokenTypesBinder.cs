@@ -56,10 +56,7 @@ namespace Translator
 
         private static TokenTypes GetType<TKey>(TKey key, Dictionary<TKey, TokenTypes> bindings)
         {
-            if (bindings.TryGetValue(key, out var type))
-                return type;
-
-            return TokenTypes.Unknown;
+            return bindings.TryGetValue(key, out var type) ? type : TokenTypes.Unknown;
         }
     }
 }

@@ -40,10 +40,7 @@ namespace Translator
         private static TOperation GetOperation<TOperation>(TokenTypes op, Dictionary<TokenTypes, TOperation> bindings)
             where TOperation : class
         {
-            if (bindings.TryGetValue(op, out var operation))
-                return operation;
-
-            return null;
+            return bindings.TryGetValue(op, out var operation) ? operation : null;
         }
     }
 }
