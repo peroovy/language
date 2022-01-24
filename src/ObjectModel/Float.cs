@@ -18,6 +18,19 @@ namespace Translator.ObjectModel
 
         public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 
+        public override int GetHashCode() => base.GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Float)
+                return Value == (obj as Float).Value;
+
+            if (obj is Int)
+                return Value == (obj as Int).Value;
+
+            return false;
+        }
+
         public static Float Create(string value)
         {
             return double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var number)

@@ -21,6 +21,19 @@
 
         public override string ToString() => Value.ToString();
 
+        public override int GetHashCode() => base.GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Int)
+                return Value == (obj as Int).Value;
+
+            if (obj is Float)
+                return Value == (obj as Float).Value;
+
+            return false;
+        }
+
         public static Int Create(string value)
         {
             return int.TryParse(value, out var number)
