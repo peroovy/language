@@ -19,13 +19,17 @@ namespace Translator
             _tokens = tokens;
             _diagnostic = new Diagnostic(code);
 
-            if (Current.Type == TokenTypes.IntKeyword 
-                || Current.Type == TokenTypes.FloatKeyword 
-                || Current.Type == TokenTypes.BoolKeyword)
+            switch (Current.Type)
             {
-                var statement = ParseStatement();
+                case TokenTypes.IntKeyword:
+                case TokenTypes.FloatKeyword:
+                case TokenTypes.BoolKeyword:
+                case TokenTypes.VarKeyword:
+                {
+                    var statement = ParseStatement();
 
-                return new CompilationState<SyntaxNode>(statement, _diagnostic.Errors);
+                    return new CompilationState<SyntaxNode>(statement, _diagnostic.Errors);
+                }
             }
 
             var expression = ParseExpression();
@@ -48,14 +52,14 @@ namespace Translator
             return current;
         }
 
-        private Token MatchToken(TokenTypes type)
+        private Token MatchToken(TokenTypes expected)
         {
-            if (Current.Type == type)
+            if (Current.Type == expected)
                 return NextToken();
 
-            _diagnostic.ReportUnexpectedTokenError(Current.Type, type, Current.Location);
+            _diagnostic.ReportUnexpectedTokenError(Current.Type, expected, Current.Location);
 
-            return new Token(type, null, Current.Location);
+            return new Token(expected, null, Current.Location);
         }
 
         #region Expressions
@@ -163,10 +167,10 @@ namespace Translator
             var keyword = NextToken();
             var identifier = MatchToken(TokenTypes.Identifier);
 
-            if (Current.Type != TokenTypes.Equals)
+            if (Current.Type != TokenTypes.Equals && keyword.Type != TokenTypes.VarKeyword)
                 return new SyntaxVariableDeclarationStatement(keyword, identifier);
 
-            var op = NextToken();
+            var op = MatchToken(TokenTypes.Equals);
             var expression = ParseExpression();
 
             return new SyntaxVariableDeclarationStatement(keyword, identifier, op, expression);

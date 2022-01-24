@@ -15,7 +15,15 @@ namespace language
             while (true)
             {
                 Console.Write(">> ");
-                var code = new SourceCode(Console.ReadLine());
+
+                var input = Console.ReadLine();
+                if (input == "clear")
+                {
+                    Console.Clear();
+                    continue;
+                }
+
+                var code = new SourceCode(input);
 
                 var compiler = new Compiler(scope);
                 var compilation = compiler.Compile(code);

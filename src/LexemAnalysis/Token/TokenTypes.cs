@@ -30,6 +30,7 @@
         IntKeyword,
         FloatKeyword,
         BoolKeyword,
+        VarKeyword,
         TrueKeyword,
         FalseKeyword,
 

@@ -12,7 +12,7 @@ namespace Translator
             [TokenTypes.BoolKeyword] = ObjectTypes.Bool
         };
 
-        public static ObjectTypes GetVariableType(this TokenTypes keyword) => 
+        public static ObjectTypes GetObjectType(this TokenTypes keyword) => 
             _bindings.TryGetValue(keyword, out var type) ? type : ObjectTypes.Unknown;
     }
 }

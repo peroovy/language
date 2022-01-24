@@ -157,14 +157,19 @@ namespace Translator
         {
             Token keyword = statement.Keyword;
             Token identifier = statement.Identifier;
-
-            ObjectTypes type = statement.Keyword.Type.GetVariableType();
-            if (type == ObjectTypes.Unknown)
-                _diagnostic.ReportUndefinedTypeError(keyword.Value, keyword.Location);
-
             var initExpression = statement.InitializedExpression != null
                 ? ResolveExpression(statement.InitializedExpression)
                 : null;
+
+            var type = keyword.Type == TokenTypes.VarKeyword
+                ? initExpression.Type 
+                : keyword.Type.GetObjectType();
+            if (type == ObjectTypes.Unknown)
+            {
+                _diagnostic.ReportUndefinedTypeError(keyword.Value, keyword.Location);
+
+                return new ResolvedLostStatement();
+            }
 
             if (identifier.Value == null)
                 return new ResolvedLostStatement();

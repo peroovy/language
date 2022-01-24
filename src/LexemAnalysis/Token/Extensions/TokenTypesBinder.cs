@@ -43,6 +43,7 @@ namespace Translator
             ["int"] = TokenTypes.IntKeyword,
             ["float"] = TokenTypes.FloatKeyword,
             ["bool"] = TokenTypes.BoolKeyword,
+            ["var"] = TokenTypes.VarKeyword,
 
             ["true"] = TokenTypes.TrueKeyword,
             ["false"] = TokenTypes.FalseKeyword
