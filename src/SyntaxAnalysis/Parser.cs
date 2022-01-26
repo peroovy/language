@@ -94,7 +94,21 @@ namespace Translator
             SyntaxExpression left;
 
             var unaryPrecedence = Current.Type.GetUnaryOperatorPrecedence();
-            if (unaryPrecedence != null && unaryPrecedence >= parentPrecedence)
+            if (Peek(0).Type == TokenTypes.OpenParenthesis && (Peek(1).Type == TokenTypes.IntKeyword 
+                                                            || Peek(1).Type == TokenTypes.FloatKeyword 
+                                                            || Peek(1).Type == TokenTypes.BoolKeyword)
+             && Peek(2).Type == TokenTypes.CloseParenthesis
+             && unaryPrecedence >= parentPrecedence)
+            {
+                var openParenthesis = NextToken();
+                var keyword = NextToken();
+                var closeParenthesis = NextToken();
+                var expression = ParseBinaryExpression(unaryPrecedence.Value);
+
+                left = new SyntaxExplicitCastExpression(openParenthesis, keyword, closeParenthesis, expression);
+            }
+            else if (unaryPrecedence != null && Current.Type != TokenTypes.OpenParenthesis 
+                && unaryPrecedence >= parentPrecedence)
             {
                 var operatorToken = NextToken();
                 var expression = ParseBinaryExpression(unaryPrecedence.Value);
@@ -109,7 +123,7 @@ namespace Translator
             while (true)
             {
                 var precedence = Current.Type.GetBinaryOperatorPrecedence();
-                if (precedence is null || precedence <= parentPrecedence)
+                if (precedence == null || precedence <= parentPrecedence)
                     break;
 
                 var operatorToken = NextToken();

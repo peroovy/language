@@ -71,11 +71,18 @@ namespace Translator
             Report(message, location);
         }
 
-        public void ReportImpossibleImplicitCast(ObjectTypes from,  ObjectTypes to, TextLocation equalsLocation)
+        public void ReportImpossibleImplicitCast(ObjectTypes from,  ObjectTypes to, TextLocation equals)
         {
-            var message = $"ERROR({equalsLocation.NumberLine}, {equalsLocation.Span.Start}): Type '{from}' cannot be converted implicitly to '{to}'";
+            var message = $"ERROR({equals.NumberLine}, {equals.Span.Start}): Type '{from}' cannot be converted implicitly to '{to}'";
 
-            Report(message, equalsLocation);
+            Report(message, equals);
+        }
+
+        public void ReportImpossibleExplicitCast(ObjectTypes from, ObjectTypes to, TextLocation keyword)
+        {
+            var message = $"ERROR({keyword.NumberLine}, {keyword.Span.Start}): Type '{from}' cannot be converted explicitly to '{to}'";
+
+            Report(message, keyword);
         }
 
         public void ReportUndefinedVariableError(string identifier, TextLocation location)

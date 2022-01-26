@@ -9,6 +9,7 @@
                 case TokenTypes.Plus:
                 case TokenTypes.Minus:
                 case TokenTypes.Bang:
+                case TokenTypes.OpenParenthesis:
                     return 10;
             }
 

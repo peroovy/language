@@ -53,19 +53,22 @@ namespace Translator
 
                 case SyntaxNodeKind.AssignmentExpression:
                     return ResolveAssignmentExpression((SyntaxAssignmentExpression)expression);
+
+                case SyntaxNodeKind.ExplicitCastExpression:
+                    return ResolveExplicitCastExpression((SyntaxExplicitCastExpression)expression);
             }
 
             throw new System.Exception($"Expression '{expression.Kind}' is not resolved");
         }
 
-        private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression literal)
+        private ResolvedLiteralExpression ResolveLiteralExpression(SyntaxLiteralExpression syntax)
         {
-            return new ResolvedLiteralExpression(literal.Token.Value, literal.ObjectType);
+            return new ResolvedLiteralExpression(syntax.Token.Value, syntax.ObjectType);
         }
 
-        private ResolvedExpression ResolveIdentifierExpression(SyntaxIdentifierExpression expression)
+        private ResolvedExpression ResolveIdentifierExpression(SyntaxIdentifierExpression syntax)
         {
-            Token identifier = expression.Name;
+            Token identifier = syntax.Name;
 
             if (!_scope.TryGetValue(identifier.Value, out Variable variable))
             {
@@ -77,56 +80,56 @@ namespace Translator
             return new ResolvedIdentifierExpression(variable);
         }
 
-        private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression parentheses)
+        private ResolvedParenthesizedExpression ResolveParenthesizedExpression(SyntaxParenthesizedExpression syntax)
         {
-            var expression = ResolveExpression(parentheses.Expression);
+            var expression = ResolveExpression(syntax.Expression);
 
             return new ResolvedParenthesizedExpression(expression);
         }
 
-        private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression unary)
+        private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression syntax)
         {
-            IUnaryOperation operation = unary.OperatorToken.Type.ToUnaryOperation();
-            var operand = ResolveExpression(unary.Operand);
+            IUnaryOperation operation = syntax.OperatorToken.Type.ToUnaryOperation();
+            var operand = ResolveExpression(syntax.Operand);
 
             if (operation is null)
-                throw new System.Exception($"The unary operator '{unary.OperatorToken.Value}' is not resolved");
+                throw new System.Exception($"The unary operator '{syntax.OperatorToken.Value}' is not resolved");
 
             if (operation.IsApplicable(operand.Type))
                 return new ResolvedUnaryExpression(operation, operand);
 
-            _diagnostic.ReportUndefinedUnaryOperationForType(operation.Kind, operand.Type, unary.OperatorToken.Location);
+            _diagnostic.ReportUndefinedUnaryOperationForType(operation.Kind, operand.Type, syntax.OperatorToken.Location);
 
             return new ResolvedLostExpression();
         }
 
-        private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression binary)
+        private ResolvedExpression ResolveBinaryExpression(SyntaxBinaryExpression syntax)
         {
-            var left = ResolveExpression(binary.Left);
-            var right = ResolveExpression(binary.Right);
-            IBinaryOperation operation = binary.OperatorToken.Type.ToBinaryOperation();
+            var left = ResolveExpression(syntax.Left);
+            var right = ResolveExpression(syntax.Right);
+            IBinaryOperation operation = syntax.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
-                throw new System.Exception($"The binary operator '{binary.OperatorToken.Value}' is not resolved");
+                throw new System.Exception($"The binary operator '{syntax.OperatorToken.Value}' is not resolved");
 
             if (operation.IsApplicable(left.Type, right.Type))
-                return new ResolvedBinaryExpression(left, operation, right, binary.OperatorToken.Location);
+                return new ResolvedBinaryExpression(left, operation, right, syntax.OperatorToken.Location);
 
-            _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, binary.OperatorToken.Location);
+            _diagnostic.ReportUndefinedBinaryOperationForTypes(left.Type, operation.Kind, right.Type, syntax.OperatorToken.Location);
 
             return new ResolvedLostExpression();
         } 
 
-        private ResolvedExpression ResolveAssignmentExpression(SyntaxAssignmentExpression expression)
+        private ResolvedExpression ResolveAssignmentExpression(SyntaxAssignmentExpression syntax)
         {
-            var value = ResolveExpression(expression.Expression);
+            var value = ResolveExpression(syntax.Expression);
 
             ObjectTypes expressionType = value.Type;
-            IBinaryOperation operation = expression.Operator.Type.ToBinaryOperation();
+            IBinaryOperation operation = syntax.Operator.Type.ToBinaryOperation();
 
-            if (!_scope.TryGetValue(expression.Identifier.Value, out var variable))
+            if (!_scope.TryGetValue(syntax.Identifier.Value, out var variable))
             {
-                _diagnostic.ReportUndefinedVariableError(expression.Identifier.Value, expression.Identifier.Location);
+                _diagnostic.ReportUndefinedVariableError(syntax.Identifier.Value, syntax.Identifier.Location);
 
                 return new ResolvedLostExpression();
             }
@@ -136,7 +139,7 @@ namespace Translator
                 if (!operation.IsApplicable(variable.Type, value.Type))
                 {
                     _diagnostic.ReportUndefinedBinaryOperationForTypes(
-                        variable.Type, operation.Kind, value.Type, expression.Operator.Location);
+                        variable.Type, operation.Kind, value.Type, syntax.Operator.Location);
 
                     return new ResolvedLostExpression();
                 }
@@ -146,35 +149,50 @@ namespace Translator
 
             if (!ImplicitCast.Instance.IsApplicable(expressionType, variable.Type))
             {
-                _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, expression.Operator.Location);
+                _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, syntax.Operator.Location);
 
                 return new ResolvedLostExpression();
             }
 
-            return new ResolvedAssignmentExpression(variable, value, operation, expression.Operator.Location);
+            return new ResolvedAssignmentExpression(variable, value, operation, syntax.Operator.Location);
+        }
+
+        private ResolvedExpression ResolveExplicitCastExpression(SyntaxExplicitCastExpression syntax)
+        {
+            ObjectTypes target = syntax.Keyword.Type.GetObjectType();
+            var expression = ResolveExpression(syntax.Expression);
+
+            if (!ExplicitCast.Instance.IsApplicable(expression.Type, target))
+            {
+                _diagnostic.ReportImpossibleExplicitCast(expression.Type, target, syntax.Keyword.Location);
+
+                return new ResolvedLostExpression();
+            }
+
+            return new ResolvedExplicitCastExpression(expression, target);
         }
 
         #endregion
 
         #region Statements
 
-        private ResolvedStatement ResolveStatement(SyntaxStatement statement)
+        private ResolvedStatement ResolveStatement(SyntaxStatement syntax)
         {
-            switch (statement.Kind)
+            switch (syntax.Kind)
             {
                 case SyntaxNodeKind.VariableDeclarationStatement:
-                    return ResolveVariableDeclarationStatement((SyntaxVariableDeclarationStatement)statement);
+                    return ResolveVariableDeclarationStatement((SyntaxVariableDeclarationStatement)syntax);
             }
 
-            throw new System.Exception($"Statement '{statement.Kind}' is not resolved");
+            throw new System.Exception($"Statement '{syntax.Kind}' is not resolved");
         }
 
-        private ResolvedStatement ResolveVariableDeclarationStatement(SyntaxVariableDeclarationStatement statement)
+        private ResolvedStatement ResolveVariableDeclarationStatement(SyntaxVariableDeclarationStatement syntax)
         {
-            Token keyword = statement.Keyword;
-            Token identifier = statement.Identifier;
-            var initExpression = statement.InitializedExpression != null
-                ? ResolveExpression(statement.InitializedExpression)
+            Token keyword = syntax.Keyword;
+            Token identifier = syntax.Identifier;
+            var initExpression = syntax.InitializedExpression != null
+                ? ResolveExpression(syntax.InitializedExpression)
                 : null;
 
             var type = keyword.Type == TokenTypes.VarKeyword
@@ -199,14 +217,14 @@ namespace Translator
 
             if (initExpression != null && !ImplicitCast.Instance.IsApplicable(initExpression.Type, type))
             {
-                _diagnostic.ReportImpossibleImplicitCast(initExpression.Type, type, statement.Operator.Location);
+                _diagnostic.ReportImpossibleImplicitCast(initExpression.Type, type, syntax.Operator.Location);
 
                 return new ResolvedLostStatement();
             }
 
             _scope[identifier.Value] = new Variable(identifier.Value, type);
 
-            return new ResolvedVariableDeclarationStatement(_scope[identifier.Value], initExpression, statement.Operator?.Location);
+            return new ResolvedVariableDeclarationStatement(_scope[identifier.Value], initExpression, syntax.Operator?.Location);
         }
 
         #endregion

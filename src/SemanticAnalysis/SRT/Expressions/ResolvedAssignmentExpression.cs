@@ -5,7 +5,11 @@ namespace Translator
 {
     internal sealed class ResolvedAssignmentExpression : ResolvedExpression
     {
-        public ResolvedAssignmentExpression(Variable variable, ResolvedExpression expression, IBinaryOperation operation, TextLocation equalsLocation)
+        public ResolvedAssignmentExpression(
+            Variable variable, 
+            ResolvedExpression expression, 
+            IBinaryOperation operation, 
+            TextLocation equalsLocation)
         {
             Variable = variable;
             Expression = expression;

@@ -49,6 +49,7 @@
     <Compile Include="src\ObjectModel\ObjectTypes.cs" />
     <Compile Include="src\ObjectModel\Variable.cs" />
     <Compile Include="src\Operations\Binary\NumberBinaryOperation.cs" />
+    <Compile Include="src\Operations\Cast\ExplicitCast.cs" />
     <Compile Include="src\Operations\Cast\ICastOperation.cs" />
     <Compile Include="src\Operations\Cast\ImplicitCast.cs" />
     <Compile Include="src\Program.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="src\Operations\Unary\Positive.cs" />
     <Compile Include="src\Operations\IUnaryOperation.cs" />
     <Compile Include="src\LexemAnalysis\Token\Extensions\ObjectTypesBinder.cs" />
+    <Compile Include="src\SemanticAnalysis\ResolvedExplicitCastExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxStatement.cs" />
     <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxIdentifierExpression.cs" />
     <Compile Include="src\LexemAnalysis\Token\Extensions\OperatorPrecedences.cs" />
+    <Compile Include="src\SyntaxAnalysis\SyntaxExplicitCastExpression.cs" />
     <Compile Include="src\Text\SourceCode.cs" />
     <Compile Include="src\Text\TextLocation.cs" />
     <Compile Include="src\Text\TextSpan.cs" />

@@ -4,6 +4,8 @@ namespace Translator
 {
     internal class ImplicitCast : ICastOperation
     {
+        private ImplicitCast() { }
+
         static ImplicitCast()
         {
             Instance = new ImplicitCast();

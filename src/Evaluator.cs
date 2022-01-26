@@ -54,6 +54,9 @@ namespace Translator
                 case ResolvedNodeKind.AssignmentExpression:
                     return EvaluateAssignmentExpression((ResolvedAssignmentExpression)expression);
 
+                case ResolvedNodeKind.ExplicitCastExpression:
+                    return EvaluateExplicitCastExpression((ResolvedExplicitCastExpression)expression);
+
                 case ResolvedNodeKind.LostExpression:
                     return null;
             }
@@ -128,6 +131,13 @@ namespace Translator
             variable.SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
 
             return value;
+        }
+
+        private Object EvaluateExplicitCastExpression(ResolvedExplicitCastExpression cast)
+        {
+            var expression = EvaluateExpression(cast.Expression);
+
+            return ExplicitCast.Instance.CastTo(cast.Target, expression);
         }
 
         #endregion
