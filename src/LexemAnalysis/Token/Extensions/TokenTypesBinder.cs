@@ -33,6 +33,13 @@ namespace Translator
             ["<="] = TokenTypes.LeftArrowEquals,
             [">="] = TokenTypes.RightArrowEquals,
 
+            ["+="] = TokenTypes.PlusEquals,
+            ["-="] = TokenTypes.MinusEquals,
+            ["*="] = TokenTypes.StarEquals,
+            ["/="] = TokenTypes.SlashEquals,
+            ["&="] = TokenTypes.OpersandEquals,
+            ["|="] = TokenTypes.VerticalBarEquals,
+
             ["&&"] = TokenTypes.DoubleOpersand,
             ["||"] = TokenTypes.DoubleVerticalBar
         };

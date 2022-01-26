@@ -71,8 +71,13 @@ namespace Translator
 
         private SyntaxExpression ParseAssignmentExpression()
         {
-            if (Peek(0).Type == TokenTypes.Identifier 
-                && Peek(1).Type == TokenTypes.Equals)
+            if (Peek(0).Type == TokenTypes.Identifier && (Peek(1).Type == TokenTypes.Equals
+                                                       || Peek(1).Type == TokenTypes.PlusEquals
+                                                       || Peek(1).Type == TokenTypes.MinusEquals
+                                                       || Peek(1).Type == TokenTypes.StarEquals
+                                                       || Peek(1).Type == TokenTypes.SlashEquals
+                                                       || Peek(1).Type == TokenTypes.OpersandEquals
+                                                       || Peek(1).Type == TokenTypes.VerticalBarEquals))
             {
                 var identifier = NextToken();
                 var op = NextToken();

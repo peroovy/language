@@ -94,7 +94,7 @@
     <Compile Include="src\Text\TextLocation.cs" />
     <Compile Include="src\Text\TextSpan.cs" />
     <Compile Include="src\LexemAnalysis\Token\Extensions\TokenTypesBinder.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Extensions\OperatorsBinder.cs" />
+    <Compile Include="src\LexemAnalysis\Token\Extensions\OperationBinder.cs" />
     <Compile Include="src\Operations\BinaryOperationKind.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
     <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />

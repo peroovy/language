@@ -36,11 +36,11 @@ namespace Translator
             Report(message, location);
         }
 
-        public void ReportUndefinedBinaryOperationForTypes(ObjectTypes left, BinaryOperationKind operation, ObjectTypes right, TextLocation location)
+        public void ReportUndefinedBinaryOperationForTypes(ObjectTypes left, BinaryOperationKind operation, ObjectTypes right, TextLocation operatorLocation)
         {
-            var message = $"ERROR({location.NumberLine}, {location.Span.Start}): The binary operation '{operation}' is not defined for types '{left}' and '{right}'";
+            var message = $"ERROR({operatorLocation.NumberLine}, {operatorLocation.Span.Start}): The binary operation '{operation}' is not defined for types '{left}' and '{right}'";
 
-            Report(message, location);
+            Report(message, operatorLocation);
         }
 
         public void ReportDivisionByZero(TextLocation location)

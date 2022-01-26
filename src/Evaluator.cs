@@ -103,7 +103,7 @@ namespace Translator
 
             var value = binary.Operation.Evaluate(left, right);
 
-            if (value is null && binary.Operation.Kind == BinaryOperationKind.Division)
+            if (value == null && binary.Operation.Kind == BinaryOperationKind.Division)
                 _diagnostic.ReportDivisionByZero(binary.OperatorLocation);
 
             return value;
@@ -113,7 +113,18 @@ namespace Translator
         {
             var variable = expression.Variable;
             var value = EvaluateExpression(expression.Expression);
-            
+            var operation = expression.Operation;
+
+            if (operation != null)
+                value = operation.Evaluate(variable.Value, value);
+
+            if (value == null && operation.Kind == BinaryOperationKind.Division)
+            {
+                _diagnostic.ReportDivisionByZero(expression.OperatorLocation);
+
+                return null;
+            }
+
             variable.SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
 
             return value;

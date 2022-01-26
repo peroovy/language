@@ -121,6 +121,9 @@ namespace Translator
         {
             var value = ResolveExpression(expression.Expression);
 
+            ObjectTypes expressionType = value.Type;
+            IBinaryOperation operation = expression.Operator.Type.ToBinaryOperation();
+
             if (!_scope.TryGetValue(expression.Identifier.Value, out var variable))
             {
                 _diagnostic.ReportUndefinedVariableError(expression.Identifier.Value, expression.Identifier.Location);
@@ -128,14 +131,27 @@ namespace Translator
                 return new ResolvedLostExpression();
             }
 
-            if (!ImplicitCast.Instance.IsApplicable(value.Type, variable.Type))
+            if (operation != null)
+            {
+                if (!operation.IsApplicable(variable.Type, value.Type))
+                {
+                    _diagnostic.ReportUndefinedBinaryOperationForTypes(
+                        variable.Type, operation.Kind, value.Type, expression.Operator.Location);
+
+                    return new ResolvedLostExpression();
+                }
+
+                expressionType = operation.GetObjectType(variable.Type, value.Type);
+            }
+
+            if (!ImplicitCast.Instance.IsApplicable(expressionType, variable.Type))
             {
                 _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, expression.Operator.Location);
 
                 return new ResolvedLostExpression();
             }
 
-            return new ResolvedAssignmentExpression(variable, value, expression.Operator.Location);
+            return new ResolvedAssignmentExpression(variable, value, operation, expression.Operator.Location);
         }
 
         #endregion

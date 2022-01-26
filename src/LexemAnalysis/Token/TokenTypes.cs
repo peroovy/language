@@ -24,6 +24,13 @@
         DoubleVerticalBar,
         Bang,
 
+        PlusEquals,
+        MinusEquals,
+        StarEquals,
+        SlashEquals,
+        OpersandEquals,
+        VerticalBarEquals,
+
         Space,
         LineSeparator,
 
