@@ -11,14 +11,10 @@ namespace Translator.ObjectModel
             Chunks = ImmutableArray.Create<uint>(0);
         }
 
-        public Long(ImmutableArray<uint> digits, bool isNegative) : this(digits)
+        private Long(ImmutableArray<uint> chunks, bool isNegative)
         {
+            Chunks = chunks;
             IsNegative = isNegative;
-        }
-
-        private Long(ImmutableArray<uint> digits)
-        {
-            Chunks = digits.Length > 0 ? digits : ImmutableArray.Create<uint>(0);
         }
 
         public override ObjectTypes Type => ObjectTypes.Long;
@@ -60,6 +56,9 @@ namespace Translator.ObjectModel
 
         public static Long Create(string value)
         {
+            if (string.IsNullOrEmpty(value))
+                throw new System.InvalidOperationException();
+
             var builder = ImmutableArray.CreateBuilder<uint>();
             var isNegative = value[0] == '-';
             var start = isNegative ? 1 : 0;
@@ -73,7 +72,7 @@ namespace Translator.ObjectModel
                 builder.Add(uint.Parse(chunk));
             }
 
-            while (builder.Count > 0 && builder.Last() == 0)
+            while (builder.Count > 1 && builder.Last() == 0)
                 builder.RemoveAt(builder.Count - 1);
 
             return new Long(builder.ToImmutableArray(), isNegative);
@@ -94,30 +93,19 @@ namespace Translator.ObjectModel
             return new Long(chunks.Take(length).ToImmutableArray(), isNegative);
         }
 
-        public static Long operator +(Long operand) => Create(operand.Chunks.ToArray(), operand.IsNegative);
-
-        public static Long operator -(Long operand) => Create(operand.Chunks.ToArray(), !operand.IsNegative);
-
-        public static Long operator +(Long left, Int right)
+        private static Long Sum(ImmutableArray<uint> left, bool isNegativeLeft, ImmutableArray<uint> right, bool isNegativeRight)
         {
-            var longRight = Create((uint)System.Math.Abs(right.Value), right.Value < 0);
-
-            return left + longRight;
-        }
-
-        public static Long operator +(Long left, Long right)
-        {
-            if (left.IsNegative == right.IsNegative)
+            if (isNegativeLeft == isNegativeRight)
             {
-                var isNegative = left.IsNegative;
-                var dimension = System.Math.Max(left.Dimension, right.Dimension);
+                var isNegative = isNegativeLeft;
+                var dimension = System.Math.Max(left.Length, right.Length);
                 var chunks = new uint[dimension + 1];
 
                 var carry = 0u;
                 for (var i = 0; i < dimension || carry > 0u; i++)
                 {
-                    var leftChunk = i < left.Chunks.Length ? left.Chunks[i] : 0u;
-                    var rightChunk = i < right.Chunks.Length ? right.Chunks[i] : 0u;
+                    var leftChunk = i < left.Length ? left[i] : 0u;
+                    var rightChunk = i < right.Length ? right[i] : 0u;
 
                     chunks[i] += leftChunk + rightChunk + carry;
                     carry = chunks[i] >= Base ? 1u : 0u;
@@ -127,27 +115,20 @@ namespace Translator.ObjectModel
                 return Create(chunks, isNegative);
             }
 
-            return left.IsNegative
-                ? right - (-left)
-                : left - (-right);
+            return isNegativeLeft
+                ? Sub(right, false, left, false)
+                : Sub(left, false, right, false);
         }
 
-        public static Long operator -(Long left, Int right)
+        private static Long Sub(ImmutableArray<uint> left, bool isNegativeLeft, ImmutableArray<uint> right, bool isNegativeRight)
         {
-            var longRight = Create((uint)System.Math.Abs(right.Value), right.Value < 0);
-
-            return left - longRight;
-        }
-
-        public static Long operator -(Long left, Long right)
-        {
-            if (!left.IsNegative && !right.IsNegative)
+            if (!isNegativeLeft && !isNegativeRight)
             {
-                var dimension = System.Math.Max(left.Dimension, right.Dimension);
+                var dimension = System.Math.Max(left.Length, right.Length);
                 var chunks = new uint[dimension];
                 var isNegative = false;
 
-                if ((right > left).Value)
+                if (More(right, isNegativeRight, left, isNegativeLeft))
                 {
                     var temp = left;
                     left = right;
@@ -158,8 +139,8 @@ namespace Translator.ObjectModel
                 var carry = 0u;
                 for (var i = 0; i < dimension; i++)
                 {
-                    var leftChunk = i < left.Chunks.Length ? left.Chunks[i] : 0u;
-                    var rightChunk = i < right.Chunks.Length ? right.Chunks[i] : 0u;
+                    var leftChunk = i < left.Length ? left[i] : 0u;
+                    var rightChunk = i < right.Length ? right[i] : 0u;
                     var occupied = leftChunk < rightChunk ? Base : 0u;
 
                     chunks[i] = occupied - rightChunk - carry + leftChunk;
@@ -169,11 +150,73 @@ namespace Translator.ObjectModel
                 return Create(chunks, isNegative);
             }
 
-            if (left.IsNegative && right.IsNegative)
-                return (-right) - (-left);
+            if (isNegativeLeft && isNegativeRight)
+                return Sub(right, false, left, false);
 
-            return left + (-right);
+            return isNegativeLeft
+                ? Sum(left, true, right, true)
+                : Sum(left, false, right, false);
         }
+
+        private static bool More(ImmutableArray<uint> left, bool isNegativeLeft, ImmutableArray<uint> right, bool isNegativeRight)
+        {
+            if (isNegativeLeft != isNegativeRight)
+                return isNegativeLeft == false;
+
+            if (left.Length != right.Length)
+                return left.Length > right.Length;
+
+            for (var i = left.Length - 1; i >= 0; i--)
+            {
+                if (left[i] != right[i])
+                    return left[i] > right[i] ^ isNegativeLeft;
+            }
+
+            return true;
+        }
+
+        #region UnaryOperators
+
+        public static Long operator +(Long operand) => new Long(operand.Chunks.ToImmutableArray(), operand.IsNegative);
+
+        public static Long operator -(Long operand) => new Long(operand.Chunks.ToImmutableArray(), !operand.IsNegative);
+
+        #endregion
+
+
+        #region AdditionOperators
+
+        public static Long operator +(Long left, Int right)
+        {
+            var longRight = Create((uint)System.Math.Abs(right.Value), right.Value < 0);
+
+            return left + longRight;
+        }
+
+        public static Long operator +(Long left, Long right)
+        {
+            return Sum(left.Chunks, left.IsNegative, right.Chunks, right.IsNegative);
+        }
+
+        #endregion
+
+        #region SubtractionOperators
+
+        public static Long operator -(Long left, Int right)
+        {
+            var longRight = Create((uint)System.Math.Abs(right.Value), right.Value < 0);
+
+            return left - longRight;
+        }
+
+        public static Long operator -(Long left, Long right)
+        {
+            return Sub(left.Chunks, left.IsNegative, right.Chunks, right.IsNegative);
+        }
+
+        #endregion
+
+        #region LogicalOperators
 
         public static Bool operator ==(Long left, Long right)
         {
@@ -214,5 +257,6 @@ namespace Translator.ObjectModel
 
         public static Bool operator <=(Long left, Long right) => !(left > right);
 
+        #endregion
     }
 }

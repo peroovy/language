@@ -33,12 +33,12 @@ namespace Translator
                     case ObjectTypes.Bool:
                         return new Bool((obj as Bool).Value);
 
-                    case ObjectTypes.Long:
-                    {
-                        var _long = (Long)obj;
+                    //case ObjectTypes.Long:
+                    //{
+                    //    var _long = (Long)obj;
 
-                        return new Long(_long.Chunks.ToImmutableArray(), _long.IsNegative);
-                    }
+                    //    return new Long(_long.Chunks.ToImmutableArray(), _long.IsNegative);
+                    //}
                 }
 
                 throw new System.Exception($"Unknown type {obj.Type}");
