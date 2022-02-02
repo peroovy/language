@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\NUnit.3.13.2\build\NUnit.props" Condition="Exists('packages\NUnit.3.13.2\build\NUnit.props')" />
+  <Import Project="packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props" Condition="Exists('packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -12,6 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,8 +37,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.13.2.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>packages\NUnit.3.13.2\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Collections.Immutable.6.0.0\lib\net461\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,90 +66,100 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Compiler\Compiler.cs" />
-    <Compile Include="src\Compiler\CompilationState.cs" />
-    <Compile Include="src\ObjectModel\Null.cs" />
-    <Compile Include="src\ObjectModel\ObjectTypes.cs" />
-    <Compile Include="src\ObjectModel\Variable.cs" />
-    <Compile Include="src\Operations\Binary\NumberBinaryOperation.cs" />
-    <Compile Include="src\Operations\Cast\ExplicitCast.cs" />
-    <Compile Include="src\Operations\Cast\ICastOperation.cs" />
-    <Compile Include="src\Operations\Cast\ImplicitCast.cs" />
-    <Compile Include="src\Program.cs" />
+    <Compile Include="Translator.Tests\ObjectModel\LongTests.cs" />
+    <Compile Include="Translator\Compiler\Compiler.cs" />
+    <Compile Include="Translator\Compiler\CompilationState.cs" />
+    <Compile Include="Translator\ObjectModel\Long.cs" />
+    <Compile Include="Translator\ObjectModel\Null.cs" />
+    <Compile Include="Translator\ObjectModel\ObjectTypes.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedExplicitCastExpression.cs" />
+    <Compile Include="Translator\ObjectModel\Variable.cs" />
+    <Compile Include="Translator\Operations\Binary\NumberBinaryOperation.cs" />
+    <Compile Include="Translator\Operations\Cast\ExplicitCast.cs" />
+    <Compile Include="Translator\Operations\Cast\ICastOperation.cs" />
+    <Compile Include="Translator\Operations\Cast\ImplicitCast.cs" />
+    <Compile Include="Translator\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Diagnostic\Diagnostic.cs" />
-    <Compile Include="src\Diagnostic\Error.cs" />
-    <Compile Include="src\ObjectModel\Bool.cs" />
-    <Compile Include="src\ObjectModel\Float.cs" />
-    <Compile Include="src\ObjectModel\Int.cs" />
-    <Compile Include="src\ObjectModel\Object.cs" />
-    <Compile Include="src\Operations\Binary\Addition.cs" />
-    <Compile Include="src\Operations\Binary\Division.cs" />
-    <Compile Include="src\Operations\Binary\Equality.cs" />
-    <Compile Include="src\Operations\Binary\Exponentiation.cs" />
-    <Compile Include="src\Operations\IBinaryOperation.cs" />
-    <Compile Include="src\Operations\Binary\Less.cs" />
-    <Compile Include="src\Operations\Binary\LessOrEquality.cs" />
-    <Compile Include="src\Operations\Binary\LogicalAnd.cs" />
-    <Compile Include="src\Operations\Binary\LogicalOr.cs" />
-    <Compile Include="src\Operations\Binary\More.cs" />
-    <Compile Include="src\Operations\Binary\MoreOrEquality.cs" />
-    <Compile Include="src\Operations\Binary\Multiplication.cs" />
-    <Compile Include="src\Operations\Binary\NotEquality.cs" />
-    <Compile Include="src\Operations\Binary\Subtraction.cs" />
-    <Compile Include="src\Operations\Unary\LogicalNegation.cs" />
-    <Compile Include="src\Operations\Unary\Negation.cs" />
-    <Compile Include="src\Operations\Unary\Positive.cs" />
-    <Compile Include="src\Operations\IUnaryOperation.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Extensions\ObjectTypesBinder.cs" />
-    <Compile Include="src\SemanticAnalysis\ResolvedExplicitCastExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedLostStatement.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedVariableDeclarationStatement.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Statements\ResolvedStatement.cs" />
-    <Compile Include="src\StringExtensions.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxAssignmentExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxVariableDeclarationStatement.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Statements\SyntaxStatement.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxIdentifierExpression.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Extensions\OperatorPrecedences.cs" />
-    <Compile Include="src\SyntaxAnalysis\SyntaxExplicitCastExpression.cs" />
-    <Compile Include="src\Text\SourceCode.cs" />
-    <Compile Include="src\Text\TextLocation.cs" />
-    <Compile Include="src\Text\TextSpan.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Extensions\TokenTypesBinder.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Extensions\OperationBinder.cs" />
-    <Compile Include="src\Operations\BinaryOperationKind.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedLiteralExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\ResolvedNode.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\ResolvedNodeKind.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedParenthesizedExpression.cs" />
-    <Compile Include="src\SemanticAnalysis\SRT\Expressions\ResolvedUnaryExpression.cs" />
-    <Compile Include="src\Operations\UnaryOperationKind.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxBinaryExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxLiteralExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxParenthesizedExpression.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\SyntaxNode.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\Expressions\SyntaxUnaryExpression.cs" />
-    <Compile Include="src\Evaluator.cs" />
-    <Compile Include="src\LexemAnalysis\Lexer.cs" />
-    <Compile Include="src\SyntaxAnalysis\AST\SyntaxNodeKind.cs" />
-    <Compile Include="src\SyntaxAnalysis\Parser.cs" />
-    <Compile Include="src\SemanticAnalysis\SemanticResolver.cs" />
-    <Compile Include="src\LexemAnalysis\Token\Token.cs" />
-    <Compile Include="src\LexemAnalysis\Token\TokenTypes.cs" />
+    <Compile Include="Translator\Diagnostic\Diagnostic.cs" />
+    <Compile Include="Translator\Diagnostic\Error.cs" />
+    <Compile Include="Translator\ObjectModel\Bool.cs" />
+    <Compile Include="Translator\ObjectModel\Float.cs" />
+    <Compile Include="Translator\ObjectModel\Int.cs" />
+    <Compile Include="Translator\ObjectModel\Object.cs" />
+    <Compile Include="Translator\Operations\Binary\Addition.cs" />
+    <Compile Include="Translator\Operations\Binary\Division.cs" />
+    <Compile Include="Translator\Operations\Binary\Equality.cs" />
+    <Compile Include="Translator\Operations\Binary\Exponentiation.cs" />
+    <Compile Include="Translator\Operations\IBinaryOperation.cs" />
+    <Compile Include="Translator\Operations\Binary\Less.cs" />
+    <Compile Include="Translator\Operations\Binary\LessOrEquality.cs" />
+    <Compile Include="Translator\Operations\Binary\LogicalAnd.cs" />
+    <Compile Include="Translator\Operations\Binary\LogicalOr.cs" />
+    <Compile Include="Translator\Operations\Binary\More.cs" />
+    <Compile Include="Translator\Operations\Binary\MoreOrEquality.cs" />
+    <Compile Include="Translator\Operations\Binary\Multiplication.cs" />
+    <Compile Include="Translator\Operations\Binary\NotEquality.cs" />
+    <Compile Include="Translator\Operations\Binary\Subtraction.cs" />
+    <Compile Include="Translator\Operations\Unary\LogicalNegation.cs" />
+    <Compile Include="Translator\Operations\Unary\Negation.cs" />
+    <Compile Include="Translator\Operations\Unary\Positive.cs" />
+    <Compile Include="Translator\Operations\IUnaryOperation.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\Extensions\ObjectTypesBinder.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedIdentifierExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedAssignmentExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedLostExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Statements\ResolvedLostStatement.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Statements\ResolvedVariableDeclarationStatement.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Statements\ResolvedStatement.cs" />
+    <Compile Include="Translator\StringExtensions.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxAssignmentExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxExplicitCastExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Statements\SyntaxVariableDeclarationStatement.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Statements\SyntaxStatement.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxIdentifierExpression.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\Extensions\OperatorPrecedences.cs" />
+    <Compile Include="Translator\Text\SourceCode.cs" />
+    <Compile Include="Translator\Text\TextLocation.cs" />
+    <Compile Include="Translator\Text\TextSpan.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\Extensions\TokenTypesBinder.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\Extensions\OperationBinder.cs" />
+    <Compile Include="Translator\Operations\BinaryOperationKind.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedBinaryExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedLiteralExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\ResolvedNode.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\ResolvedNodeKind.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedParenthesizedExpression.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedUnaryExpression.cs" />
+    <Compile Include="Translator\Operations\UnaryOperationKind.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxBinaryExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxLiteralExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxParenthesizedExpression.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\SyntaxNode.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\Expressions\SyntaxUnaryExpression.cs" />
+    <Compile Include="Translator\Evaluator.cs" />
+    <Compile Include="Translator\LexemAnalysis\Lexer.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\AST\SyntaxNodeKind.cs" />
+    <Compile Include="Translator\SyntaxAnalysis\Parser.cs" />
+    <Compile Include="Translator\SemanticAnalysis\SemanticResolver.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\Token.cs" />
+    <Compile Include="Translator\LexemAnalysis\Token\TokenTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NUnit3TestAdapter.4.2.1\build\net35\NUnit3TestAdapter.props'))" />
+    <Error Condition="!Exists('packages\NUnit.3.13.2\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\NUnit.3.13.2\build\NUnit.props'))" />
+  </Target>
 </Project>
