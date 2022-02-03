@@ -10,15 +10,15 @@ namespace Translator
             {
                 [(ObjectTypes.Int, ObjectTypes.Int)] = (left, right) => (Int)left * (Int)right,
                 [(ObjectTypes.Int, ObjectTypes.Float)] = (left, right) => (Int)left * (Float)right,
-                //[(ObjectTypes.Int, ObjectTypes.Long)] = (left, right) => (Int)left * (Long)right,
+                [(ObjectTypes.Int, ObjectTypes.Long)] = (left, right) => (Int)left * (Long)right,
 
                 [(ObjectTypes.Float, ObjectTypes.Int)] = (left, right) => (Float)left * (Int)right,
                 [(ObjectTypes.Float, ObjectTypes.Float)] = (left, right) => (Float)left * (Float)right,
                 //[(ObjectTypes.Float, ObjectTypes.Long)] = (left, right) => (Float)left * (Long)right,
 
-                //[(ObjectTypes.Long, ObjectTypes.Int)] = (left, right) => (Long)left * (Int)right,
+                [(ObjectTypes.Long, ObjectTypes.Int)] = (left, right) => (Long)left * (Int)right,
                 //[(ObjectTypes.Long, ObjectTypes.Float)] = (left, right) => (Long)left / (Float)right,
-                //[(ObjectTypes.Long, ObjectTypes.Long)] = (left, right) => (Long)left * (Long)right,
+                [(ObjectTypes.Long, ObjectTypes.Long)] = (left, right) => (Long)left * (Long)right,
             };
 
         private Multiplication() { }

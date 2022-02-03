@@ -10,6 +10,23 @@ namespace Translator.Tests.ObjectModel
     {
         private readonly Random _randGenerator = new Random();
 
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        [TestCase(10000)]
+        [Repeat(100)]
+        public void Test_CreateFromString(int length)
+        {
+            var num = string.Join("", GenerateDigits(length).Reverse());
+            var negative_s = "-" + num;
+            var positive = Long.Create(num).ToString();
+            var negitive = Long.Create(negative_s).ToString();
+
+            Assert.AreEqual(num, positive, num);
+            Assert.AreEqual(negative_s, negitive, negative_s);
+        }
+
         [TestCase("0")]
         [TestCase("01", "1")]
         [TestCase("001", "1")]
@@ -50,6 +67,30 @@ namespace Translator.Tests.ObjectModel
             Check_ToString("-" + string.Join("", digits.Reverse()));
         }
 
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void ToString_Range(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+            {
+                ToString_Positive(length);
+                ToString_Negative(length);
+            }
+        }
+
+        [TestCase("0", "0")]
+        [TestCase("-0", "0")]
+        public void ToString_SpecialCases(string value, string expected)
+        {
+            Check_ToString(value, expected);
+        }
+
         [TestCase(1)]
         [TestCase(10)]
         [TestCase(100)]
@@ -61,6 +102,20 @@ namespace Translator.Tests.ObjectModel
             CheckBinaryOperation_Long_Int("+", Addition.Instance, Sum, length);
         }
 
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Addition_Range_Int(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Int("+", Addition.Instance, Sum, length);
+        }
+
         [TestCase(1)]
         [TestCase(10)]
         [TestCase(100)]
@@ -69,7 +124,21 @@ namespace Translator.Tests.ObjectModel
         [Repeat(100)]
         public void Addition_Long(int length)
         {
-            CheckBinaryOperation_Long_Int("+", Addition.Instance, Sum, length);
+            CheckBinaryOperation_Long_Long("+", Addition.Instance, Sum, length);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Addition_Range_Long(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Long("+", Addition.Instance, Sum, length);
         }
 
         [TestCase(1)]
@@ -83,6 +152,20 @@ namespace Translator.Tests.ObjectModel
             CheckBinaryOperation_Long_Int("-", Subtraction.Instance, Sub, length);
         }
 
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Subtraction_Range_Int(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Int("-", Subtraction.Instance, Sub, length);
+        }
+
         [TestCase(1)]
         [TestCase(10)]
         [TestCase(100)]
@@ -92,6 +175,68 @@ namespace Translator.Tests.ObjectModel
         public void Subtraction_Long(int length)
         {
             CheckBinaryOperation_Long_Long("-", Subtraction.Instance, Sub, length);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Subtraction_Range_Long(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Long("-", Subtraction.Instance, Sub, length);
+        }
+
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        [Repeat(100)]
+        public void Multiplication_Int(int length)
+        {
+            CheckBinaryOperation_Long_Int("*", Multiplication.Instance, Mult, length);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Multiplication_Range_Int(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Int("*", Multiplication.Instance, Mult, length);
+        }
+
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        [Repeat(100)]
+        public void Multiplication_Long(int length)
+        {
+            CheckBinaryOperation_Long_Long("*", Multiplication.Instance, Mult, length);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 200)]
+        [TestCase(201, 300)]
+        [TestCase(301, 400)]
+        [TestCase(501, 600)]
+        [TestCase(601, 700)]
+        public void Multiplication_Range_Long(int start, int end)
+        {
+            for (var length = start; length <= end; length++)
+                CheckBinaryOperation_Long_Long("*", Multiplication.Instance, Mult, length);
         }
 
         private void CheckBinaryOperation_Long_Int(
@@ -117,13 +262,9 @@ namespace Translator.Tests.ObjectModel
                         var leftObj = Long.Create(left);
                         var rightObj = Int.Create(right);
 
-                        var expected_1 = expectedOperation(leftDigits, i == 0, rightDigits, k == 0);
-                        var actual_1 = operation.Evaluate(leftObj, rightObj).ToString();
-                        Assert.AreEqual(expected_1, actual_1, $"{left} {sign} {right}");
-
-                        var expected_2 = expectedOperation(rightDigits, k == 0, leftDigits, i == 0);
-                        var actual_2 = operation.Evaluate(rightObj, leftObj).ToString();
-                        Assert.AreEqual(expected_2, actual_2, $"{right} {sign} {left}");
+                        var expected = expectedOperation(leftDigits, i == 0, rightDigits, k == 0);
+                        var actual = operation.Evaluate(leftObj, rightObj).ToString();
+                        Assert.AreEqual(expected, actual, $"{left} {sign} {right}");
                     }
                 }
             }
@@ -135,28 +276,28 @@ namespace Translator.Tests.ObjectModel
             Func<int[], bool, int[], bool, string> expectedOperation,
             int length)
         {
+            var step = Math.Max(1, length / 4);
             var leftDigits = GenerateDigits(length);
-            var rightDigits = GenerateDigits(length);
-            var left_s = string.Join("", leftDigits.Reverse());
-            var right_s = string.Join("", rightDigits.Reverse());
-
-            for (var i = 0; i < 2; i++)
+            for (var rightLength = 1; rightLength <= length; rightLength += step)
             {
-                for (var k = 0; k < 2; k++)
+                var rightDigits = GenerateDigits(rightLength);
+                var left_s = string.Join("", leftDigits.Reverse());
+                var right_s = string.Join("", rightDigits.Reverse());
+
+                for (var i = 0; i < 2; i++)
                 {
-                    var left = (i == 0 ? "-" : "") + left_s;
-                    var right = (k == 0 ? "-" : "") + right_s;
+                    for (var k = 0; k < 2; k++)
+                    {
+                        var left = (i == 0 ? "-" : "") + left_s;
+                        var right = (k == 0 ? "-" : "") + right_s;
 
-                    var longLeft = Long.Create(left);
-                    var longRight = Long.Create(right);
+                        var longLeft = Long.Create(left);
+                        var longRight = Long.Create(right);
 
-                    var expected_1 = expectedOperation(leftDigits, i == 0, rightDigits, k == 0);
-                    var actual_1 = operation.Evaluate(longLeft, longRight).ToString();
-                    Assert.AreEqual(expected_1, actual_1, $"{left} {sign} {right}");
-
-                    var expected_2 = expectedOperation(rightDigits, k == 0, leftDigits, i == 0);
-                    var actual_2 = operation.Evaluate(longRight, longLeft).ToString();
-                    Assert.AreEqual(expected_2, actual_2, $"{right} {sign} {left}");
+                        var expected = expectedOperation(leftDigits, i == 0, rightDigits, k == 0);
+                        var actual = operation.Evaluate(longLeft, longRight).ToString();
+                        Assert.AreEqual(expected, actual, $"{left} {sign} {right}");
+                    }
                 }
             }
         }
@@ -184,6 +325,9 @@ namespace Translator.Tests.ObjectModel
                 while (length_s - 1 > 0 && sum[length_s - 1] == 0)
                     length_s -= 1;
 
+                if (sum.Length == 1 && sum[0] == 0)
+                    isNegative = false;
+
                 return (isNegative ? "-" : "") + string.Join("", sum.Take(length_s).Reverse());
             }
 
@@ -200,7 +344,7 @@ namespace Translator.Tests.ObjectModel
             if (!isNegativeLeft && !isNegativeRight)
             {
                 var length = Math.Max(left.Length, right.Length);
-                var sub = new int[length];
+                var digits = new int[length];
                 var isNegative = false;
 
                 if (More(right, isNegativeRight, left, isNegativeLeft))
@@ -212,26 +356,57 @@ namespace Translator.Tests.ObjectModel
                 }
 
                 var carry = 0;
-                for (var i = 0; i < sub.Length; i++)
+                for (var i = 0; i < digits.Length; i++)
                 {
                     var l = i < left.Length ? left[i] : 0;
                     var r = i < right.Length ? right[i] : 0;
 
-                    sub[i] = l - r - carry;
-                    carry = sub[i] < 0 ? 1 : 0;
-                    sub[i] += carry * 10;
+                    digits[i] = l - r - carry;
+                    carry = digits[i] < 0 ? 1 : 0;
+                    digits[i] += carry * 10;
                 }
 
-                var length_s = sub.Length;
-                while (length_s - 1 > 0 && sub[length_s - 1] == 0)
+                var length_s = digits.Length;
+                while (length_s - 1 > 0 && digits[length_s - 1] == 0)
                     length_s -= 1;
 
-                return (isNegative ? "-" : "") + string.Join("", sub.Take(length_s).Reverse());
+                if (digits.Length == 1 && digits[0] == 0)
+                    isNegative = false;
+
+                return (isNegative ? "-" : "") + string.Join("", digits.Take(length_s).Reverse());
             }
 
             return isNegativeLeft
                 ? Sum(left, true, right, true)
                 : Sum(left, false, right, false);
+        }
+
+        private string Mult(int[] left, bool isNegativeLeft, int[] right, bool isNegativeRight)
+        {
+            var length = left.Length + right.Length;
+            var digits = new int[length];
+            var isNegative = isNegativeLeft ^ isNegativeRight;
+
+            for (var i = 0; i < left.Length; i++)
+            {
+                for (var j = 0; j < right.Length; j++)
+                    digits[i + j] += left[i] * right[j];
+            }
+
+            for (var i = 0; i < length - 1; i++)
+            {
+                digits[i + 1] += digits[i] / 10;
+                digits[i] %= 10;
+            }
+
+            var length_s = digits.Length;
+            while (length_s - 1 > 0 && digits[length_s - 1] == 0)
+                length_s -= 1;
+
+            if (digits.Length == 1 && digits[0] == 0)
+                isNegative = false;
+
+            return (isNegative ? "-" : "") + string.Join("", digits.Take(length_s).Reverse());
         }
 
         private bool More(int[] left, bool isNegativeLeft, int[] right, bool isNegativeRight)
@@ -268,7 +443,6 @@ namespace Translator.Tests.ObjectModel
         {
             var actual = Long.Create(value).ToString();
 
-            Assert.AreEqual(expected?.Length ?? value.Length, actual.Length);
             Assert.AreEqual(expected ?? value, actual);
         }
     }

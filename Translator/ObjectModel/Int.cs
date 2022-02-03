@@ -59,6 +59,8 @@
 
         public static Int operator *(Int left, Int right) => new Int(left.Value * right.Value);
 
+        public static Long operator *(Int left, Long right) => right * left;
+
         public static Float operator *(Int left, Float right) => new Float(left.Value * right.Value);
 
         public static Int operator /(Int left, Int right) => right.Value == 0 ? null : new Int(left.Value / right.Value);
