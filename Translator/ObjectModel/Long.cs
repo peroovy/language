@@ -1,57 +1,42 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 
 namespace Translator.ObjectModel
 {
     internal sealed class Long : Object
     {
-        private bool _isNegative;
-        private long[] _chunks;
-
         public Long()
         {
-            _chunks = new long[] { 0 };
+            Chunks = ImmutableArray.Create(0L);
+            Value = "0";
         }
 
-        private Long(long[] chunks, bool isNegative)
+        private Long(ImmutableArray<long> chunks, bool isNegative, string value)
         {
-            if (chunks.Length == 0 || chunks.Length == 1 && chunks[0] == 0)
-            {
-                _chunks = new long[] { 0 };
-                _isNegative = false;
-
-                return;
-            }
-
-            _chunks = chunks;
-            _isNegative = isNegative;
+            Chunks = chunks;
+            IsNegative = isNegative;
+            Value = value;
         }
 
         private static readonly int _chunkLength = 5;
-        private static readonly int _base = (int)System.Math.Pow(10, _chunkLength);
+        private static readonly int _base = (int)Math.Pow(10, _chunkLength);
         private static readonly int _mediumDimension = 2;
 
         public override ObjectTypes Type => ObjectTypes.Long;
-        public string Value => ToString();
+        public string Value { get; }
 
-        private int Dimension => _chunks.Length;
+        private bool IsNegative { get; }
+        private ImmutableArray<long> Chunks { get; }
+        private int Dimension => Chunks.Length;
 
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-
-            builder.Append(_isNegative ? "-" : "");
-            builder.Append(_chunks.Last());
-            foreach (var chunk in _chunks.Reverse().Skip(1))
-                builder.Append(chunk.ToString($"D{_chunkLength}"));
-
-            return builder.ToString();
-        }
+        public override string ToString() => Value;
 
         public static Long Create(string value)
         {
             if (string.IsNullOrEmpty(value))
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
 
             var chunks = new long[value.Length / _chunkLength + 1];
             var isNegative = value[0] == '-';
@@ -63,16 +48,16 @@ namespace Translator.ObjectModel
                     ? value.Substring(i - _chunkLength, _chunkLength)
                     : value.Substring(start, i - start);
 
-                chunks[j] = System.Math.Abs(int.Parse(chunk));
+                chunks[j] = Math.Abs(int.Parse(chunk));
             }
 
             Normalize(ref chunks);
-            return new Long(chunks, isNegative);
+            return Create(chunks, isNegative);
         }
 
         public static Long Create(int value)
         {
-            var absolute = System.Math.Abs(value);
+            var absolute = Math.Abs(value);
             var chunks = new long[absolute / _base + 1];
 
             for (var i = 0; i < chunks.Length && absolute > 0; i++)
@@ -82,25 +67,38 @@ namespace Translator.ObjectModel
             }
 
             RemoveLeadingZeros(ref chunks);
-            return new Long(chunks, value < 0);
+            return Create(chunks, value < 0);
+        }
+
+        private static Long Create(long[] chunks, bool isNegative)
+        {
+            if (chunks.Length == 0 || chunks.Length == 1 && chunks[0] == 0)
+                return new Long();
+
+            var builder = new StringBuilder();
+
+            builder.Append(isNegative ? "-" : "");
+            builder.Append(chunks.Last());
+
+            foreach (var chunk in chunks.Reverse().Skip(1))
+                builder.Append(chunk.ToString().PadLeft(_chunkLength, '0'));
+
+            return new Long(chunks.ToImmutableArray(), isNegative, builder.ToString());
         }
 
         private static void Normalize(ref long[] chunks)
         {
             for (var i = 0; i < chunks.Length - 1; i++)
             {
-                if (chunks[i] >= _base)
-                {
-                    var carryover = chunks[i] / _base;
-                    chunks[i + 1] += carryover;
-                    chunks[i] -= carryover * _base;
-                }
-                else if (chunks[i] < 0)
-                {
-                    var carryover = (chunks[i] + 1) / _base - 1;
-                    chunks[i + 1] += carryover;
-                    chunks[i] -= carryover * _base;
-                }
+                if (chunks[i] >= 0 && chunks[i] < _base)
+                    continue;
+
+                var carry = chunks[i] >= _base
+                    ? chunks[i] / _base
+                    : (chunks[i] + 1) / _base - 1;
+
+                chunks[i + 1] += carry;
+                chunks[i] -= carry * _base;
             }
 
             RemoveLeadingZeros(ref chunks);
@@ -113,12 +111,14 @@ namespace Translator.ObjectModel
                 .TakeWhile(chunk => chunk == 0)
                 .Count();
 
-            System.Array.Resize(ref chunks, chunks.Length - length);
+            Array.Resize(ref chunks, chunks.Length - length);
         }
+
+        #region Operation
 
         private static long[] Sum(long[] left, long[] right)
         {
-            var dimension = System.Math.Max(left.Length, right.Length);
+            var dimension = Math.Max(left.Length, right.Length);
             var chunks = new long[dimension + 1];
 
             for (var i = 0; i < dimension; i++)
@@ -129,13 +129,12 @@ namespace Translator.ObjectModel
                 chunks[i] = leftChunk + rightChunk;
             }
 
-            Normalize(ref chunks);
             return chunks;
         }
 
-        private static long[] Sub(long[] left, long[] right)
+        private static long[] Subtract(long[] left, long[] right)
         {
-            var dimension = System.Math.Max(left.Length, right.Length);
+            var dimension = Math.Max(left.Length, right.Length);
             var chunks = new long[dimension];
 
             for (var i = 0; i < dimension; i++)
@@ -146,31 +145,35 @@ namespace Translator.ObjectModel
                 chunks[i] = leftChunk - rightChunk;
             }
 
-            Normalize(ref chunks);
             return chunks;
         }
 
-        private static long[] Mult(long[] left, long[] right)
+        private static long[] MultiplyQuadratically(long[] left, long[] right)
         {
-            var dimension = System.Math.Max(left.Length, right.Length);
-            dimension += dimension % 2;
+            var dimension = left.Length + right.Length;
+            var chunks = new long[dimension];
 
-            System.Array.Resize(ref left, dimension);
-            System.Array.Resize(ref right, dimension);
+            for (var i = 0; i < left.Length; i++)
+            {
+                for (var j = 0; j < right.Length; j++)
+                    chunks[i + j] += left[i] * right[j];
+            }
+
+            return chunks;
+        }
+
+        private static long[] Multiply(long[] left, long[] right)
+        {
+            var maxDimension = Math.Max(left.Length, right.Length);
+            if (maxDimension <= _mediumDimension)
+                return MultiplyQuadratically(left, right);
+
+            var dimension = maxDimension + maxDimension % 2;
+            var halfDimension = dimension / 2;
+            Array.Resize(ref left, dimension);
+            Array.Resize(ref right, dimension);
 
             var chunks = new long[2 * dimension];
-            var halfDimension = dimension / 2;
-
-            if (dimension <= _mediumDimension)
-            {
-                for (var i = 0; i < left.Length; i++)
-                {
-                    for (var j = 0; j < right.Length; j++)
-                        chunks[i + j] += left[i] * right[j];
-                }
-
-                return chunks;
-            }
 
             var xl = left.Take(halfDimension).ToArray();
             var xh = left.Skip(halfDimension).ToArray();
@@ -185,15 +188,15 @@ namespace Translator.ObjectModel
                 ylh[i] = yl[i] + yh[i];
             }
 
-            var ph = Mult(xh, yh);
-            var pl = Mult(xl, yl);
-            var plh = Mult(xlh, ylh);
+            var ph = Multiply(xh, yh);
+            var pl = Multiply(xl, yl);
+            var plh = Multiply(xlh, ylh);
 
             for (var i = 0; i < pl.Length; i++)
                 chunks[i] = pl[i];
 
             for (var i = dimension; i < chunks.Length; i++)
-                chunks[i] += ph[i - dimension];
+                chunks[i] = ph[i - dimension];
             
             for (var i = halfDimension; i < plh.Length + halfDimension; i++)
                 chunks[i] += plh[i - halfDimension] - pl[i - halfDimension] - ph[i - halfDimension];
@@ -218,13 +221,15 @@ namespace Translator.ObjectModel
             return true;
         }
 
-        #region UnaryOperators
-
-        public static Long operator +(Long operand) => new Long(operand._chunks.ToArray(), operand._isNegative);
-
-        public static Long operator -(Long operand) => new Long(operand._chunks.ToArray(), !operand._isNegative);
         #endregion
 
+        #region UnaryOperators
+
+        public static Long operator +(Long operand) => Create(operand.Chunks.ToArray(), operand.IsNegative);
+
+        public static Long operator -(Long operand) => Create(operand.Chunks.ToArray(), !operand.IsNegative);
+
+        #endregion
 
         #region AdditionOperators
 
@@ -237,10 +242,10 @@ namespace Translator.ObjectModel
 
         public static Long operator +(Long left, Long right)
         {
-            var leftChunks = left._chunks;
-            var rightChunks = right._chunks;
-            var isNegativeLeft = left._isNegative;
-            var isNegativeRight = right._isNegative;
+            var leftChunks = left.Chunks.ToArray();
+            var rightChunks = right.Chunks.ToArray();
+            var isNegativeLeft = left.IsNegative;
+            var isNegativeRight = right.IsNegative;
 
             long[] chunks;
             bool isNegative;
@@ -252,12 +257,13 @@ namespace Translator.ObjectModel
             else
             {
                 var isMoreAbsRight = More(rightChunks, false, leftChunks, false);
-                chunks = isMoreAbsRight ? Sub(rightChunks, leftChunks) : Sub(leftChunks, rightChunks);
+
+                chunks = isMoreAbsRight ? Subtract(rightChunks, leftChunks) : Subtract(leftChunks, rightChunks);
                 isNegative = isMoreAbsRight ? isNegativeRight : isNegativeLeft;
             }
 
             Normalize(ref chunks);
-            return new Long(chunks, isNegative);
+            return Create(chunks, isNegative);
         }
 
         #endregion
@@ -273,23 +279,19 @@ namespace Translator.ObjectModel
 
         public static Long operator -(Long left, Long right)
         {
-            var leftChunks = left._chunks;
-            var rightChunks = right._chunks;
-            var isNegativeLeft = left._isNegative;
-            var isNegativeRight = right._isNegative;
+            var leftChunks = left.Chunks.ToArray();
+            var rightChunks = right.Chunks.ToArray();
+            var isNegativeLeft = left.IsNegative;
+            var isNegativeRight = right.IsNegative;
 
             long[] chunks;
             bool isNegative;
-            var isMoreAbsRight = More(rightChunks, false, leftChunks, false);
-            if (!isNegativeLeft && !isNegativeRight)
+            if (isNegativeLeft == isNegativeRight)
             {
-                chunks = isMoreAbsRight ? Sub(rightChunks, leftChunks) : Sub(leftChunks, rightChunks);
-                isNegative = isMoreAbsRight;
-            }
-            else if (isNegativeLeft && isNegativeRight)
-            {
-                chunks = isMoreAbsRight ? Sub(rightChunks, leftChunks) : Sub(leftChunks, rightChunks);
-                isNegative = !isMoreAbsRight;
+                var isMoreAbsRight = More(rightChunks, false, leftChunks, false);
+
+                chunks = isMoreAbsRight ? Subtract(rightChunks, leftChunks) : Subtract(leftChunks, rightChunks);
+                isNegative = isNegativeLeft && isNegativeRight ? !isMoreAbsRight : isMoreAbsRight;
             }
             else
             {
@@ -297,7 +299,9 @@ namespace Translator.ObjectModel
                 isNegative = isNegativeLeft;
             }
 
-            return new Long(chunks, isNegative);
+
+            Normalize(ref chunks);
+            return Create(chunks, isNegative);
         }
 
         #endregion
@@ -313,14 +317,11 @@ namespace Translator.ObjectModel
         
         public static Long operator *(Long left, Long right)
         {
-            var isNegative = left._isNegative ^ right._isNegative;
+            var isNegative = left.IsNegative ^ right.IsNegative;
+            var chunks = Multiply(left.Chunks.ToArray(), right.Chunks.ToArray());
 
-            var leftChunks = left._chunks.ToArray();
-            var rightChunks = right._chunks.ToArray();
-
-            var chunks = Mult(leftChunks, rightChunks);
             Normalize(ref chunks);
-            return new Long(chunks, isNegative);
+            return Create(chunks, isNegative);
         }
 
         #endregion
@@ -329,12 +330,12 @@ namespace Translator.ObjectModel
 
         public static Bool operator ==(Long left, Long right)
         {
-            if (left._isNegative != right._isNegative || left.Dimension != right.Dimension)
+            if (left.IsNegative != right.IsNegative || left.Dimension != right.Dimension)
                 return new Bool(false);
 
             for (var i = left.Dimension - 1; i >= 0; i--)
             {
-                if (left._chunks[i] != right._chunks[i])
+                if (left.Chunks[i] != right.Chunks[i])
                     return new Bool(false);
             }
 
@@ -345,16 +346,16 @@ namespace Translator.ObjectModel
 
         public static Bool operator >(Long left, Long right)
         {
-            if (left._isNegative != right._isNegative)
-                return new Bool(left._isNegative == false);
+            if (left.IsNegative != right.IsNegative)
+                return new Bool(left.IsNegative == false);
 
             if (left.Dimension != right.Dimension)
                 return new Bool(left.Dimension > right.Dimension);
 
             for (var i = left.Dimension - 1; i >= 0; i--)
             {
-                if (left._chunks[i] != right._chunks[i])
-                    return new Bool(left._chunks[i] > right._chunks[i] ^ left._isNegative);
+                if (left.Chunks[i] != right.Chunks[i])
+                    return new Bool(left.Chunks[i] > right.Chunks[i] ^ left.IsNegative);
             }
 
             return new Bool(true);
