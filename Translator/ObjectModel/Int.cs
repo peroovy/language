@@ -36,9 +36,10 @@
 
         public static Int Create(string value)
         {
-            return int.TryParse(value, out var number)
-                ? new Int(number)
-                : null;
+            if (!int.TryParse(value, out var number))
+                throw new System.OverflowException();
+
+            return new Int(number);
         }
 
         public static Int operator +(Int operand) => new Int(operand.Value);
