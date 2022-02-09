@@ -125,7 +125,7 @@ namespace Translator.Tests.ObjectModel
 
         private void CheckEvaluation(
             char sign,
-            IBinaryOperation operation,
+            BinaryOperation operation,
             Func<BigInteger, BigInteger, BigInteger> expectedOperation,
             int startLength, int endLength)
         {

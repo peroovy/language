@@ -24,9 +24,6 @@
 
                 case ObjectTypes.Long:
                     return new Long();
-
-                case ObjectTypes.Null:
-                    return new Null();
             }
 
             throw new System.Exception($"Unknown '{type}' is not created");

@@ -8,7 +8,7 @@ namespace Translator
         public ResolvedAssignmentExpression(
             Variable variable, 
             ResolvedExpression expression, 
-            IBinaryOperation operation, 
+            BinaryOperation operation, 
             TextLocation equalsLocation)
         {
             Variable = variable;
@@ -21,7 +21,7 @@ namespace Translator
         public override ObjectTypes Type => Variable?.Type ?? ObjectTypes.Unknown;
         public Variable Variable { get; }
         public ResolvedExpression Expression { get; }
-        public IBinaryOperation Operation { get; }
+        public BinaryOperation Operation { get; }
         public TextLocation OperatorLocation { get; }
     }
 }

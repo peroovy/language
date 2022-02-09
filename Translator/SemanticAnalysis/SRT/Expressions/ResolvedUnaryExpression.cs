@@ -4,7 +4,7 @@ namespace Translator.SRT
 {
     internal sealed class ResolvedUnaryExpression : ResolvedExpression
     {
-        public ResolvedUnaryExpression(IUnaryOperation operation, ResolvedExpression operand)
+        public ResolvedUnaryExpression(UnaryOperation operation, ResolvedExpression operand)
         {
             Operation = operation;
             Operand = operand;
@@ -12,7 +12,7 @@ namespace Translator.SRT
 
         public override ResolvedNodeKind Kind => ResolvedNodeKind.UnaryExpression;
         public override ObjectTypes Type => Operand.Type;
-        public IUnaryOperation Operation { get; }
+        public UnaryOperation Operation { get; }
         public ResolvedExpression Operand { get; }
     }
 }

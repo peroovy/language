@@ -2,10 +2,10 @@
 
 namespace Translator
 {
-    internal interface ICastOperation
+    internal interface IConvertibleOperation
     {
         bool IsApplicable(ObjectTypes from, ObjectTypes to);
 
-        Object CastTo(ObjectTypes type, Object obj);
+        Object Apply(Object obj, ObjectTypes to);
     }
 }

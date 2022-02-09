@@ -2,9 +2,7 @@
 {
     internal sealed class Int : Object
     {
-        public Int()
-        {
-        }
+        public Int() { }
 
         public Int(int value)
         {
@@ -21,19 +19,6 @@
 
         public override string ToString() => Value.ToString();
 
-        public override int GetHashCode() => base.GetHashCode();
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Int)
-                return Value == (obj as Int).Value;
-
-            if (obj is Float)
-                return Value == (obj as Float).Value;
-
-            return false;
-        }
-
         public static Int Create(string value)
         {
             if (!int.TryParse(value, out var number))
@@ -41,55 +26,5 @@
 
             return new Int(number);
         }
-
-        public static Int operator +(Int operand) => new Int(operand.Value);
-
-        public static Int operator -(Int operand) => new Int(-operand.Value);
-
-        public static Int operator +(Int left, Int right) => new Int(left.Value + right.Value);
-
-        public static Float operator +(Int left, Float right) => new Float(left.Value + right.Value);
-
-        public static Long operator +(Int left, Long right) => right + left;
-
-        public static Int operator -(Int left, Int right) => new Int(left.Value - right.Value);
-
-        public static Float operator -(Int left, Float right) => new Float(left.Value - right.Value);
-
-        public static Long operator -(Int left, Long right) => left + (-right);
-
-        public static Int operator *(Int left, Int right) => new Int(left.Value * right.Value);
-
-        public static Long operator *(Int left, Long right) => right * left;
-
-        public static Float operator *(Int left, Float right) => new Float(left.Value * right.Value);
-
-        public static Int operator /(Int left, Int right) => right.Value == 0 ? null : new Int(left.Value / right.Value);
-
-        public static Float operator /(Int left, Float right) => right.Value == 0 ? null : new Float(left.Value / right.Value);
-
-        public static Bool operator ==(Int left, Int right) => new Bool(left.Value == right.Value);
-
-        public static Bool operator !=(Int left, Int right) => new Bool(left.Value != right.Value);
-
-        public static Bool operator ==(Int left, Float right) => new Bool(left.Value == right.Value);
-
-        public static Bool operator !=(Int left, Float right) => new Bool(left.Value != right.Value);
-
-        public static Bool operator <(Int left, Int right) => new Bool(left.Value < right.Value);
-
-        public static Bool operator >(Int left, Int right) => new Bool(left.Value > right.Value);
-
-        public static Bool operator <(Int left, Float right) => new Bool(left.Value < right.Value);
-
-        public static Bool operator >(Int left, Float right) => new Bool(left.Value > right.Value);
-
-        public static Bool operator <=(Int left, Int right) => new Bool(left.Value <= right.Value);
-
-        public static Bool operator >=(Int left, Int right) => new Bool(left.Value >= right.Value);
-
-        public static Bool operator <=(Int left, Float right) => new Bool(left.Value <= right.Value);
-
-        public static Bool operator >=(Int left, Float right) => new Bool(left.Value >= right.Value);
     }
 }

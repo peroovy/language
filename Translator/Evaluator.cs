@@ -77,9 +77,6 @@ namespace Translator
                 case ObjectTypes.Bool:
                     return Bool.Create(literal.Value);
 
-                case ObjectTypes.Null:
-                    return new Null();
-
                 case ObjectTypes.Unknown:
                     return null;
             }
@@ -128,7 +125,7 @@ namespace Translator
                 return null;
             }
 
-            variable.SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
+            variable.SetValue(ImplicitCasting.Instance.Apply(value, variable.Type));
 
             return value;
         }
@@ -137,7 +134,7 @@ namespace Translator
         {
             var expression = EvaluateExpression(cast.Expression);
 
-            return ExplicitCast.Instance.CastTo(cast.Target, expression);
+            return ExplicitCasting.Instance.Apply(expression, cast.Target);
         }
 
         #endregion
@@ -165,7 +162,7 @@ namespace Translator
                 ? Object.Create(variable.Type) 
                 : EvaluateExpression(statement.InitializedExpression);
 
-            _scope[variable.Name].SetValue(ImplicitCast.Instance.CastTo(variable.Type, value));
+            _scope[variable.Name].SetValue(ImplicitCasting.Instance.Apply(value, variable.Type));
 
             return null;
         }

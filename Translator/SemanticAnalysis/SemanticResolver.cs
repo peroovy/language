@@ -89,7 +89,7 @@ namespace Translator
 
         private ResolvedExpression ResolveUnaryExpression(SyntaxUnaryExpression syntax)
         {
-            IUnaryOperation operation = syntax.OperatorToken.Type.ToUnaryOperation();
+            UnaryOperation operation = syntax.OperatorToken.Type.ToUnaryOperation();
             var operand = ResolveExpression(syntax.Operand);
 
             if (operation is null)
@@ -107,7 +107,7 @@ namespace Translator
         {
             var left = ResolveExpression(syntax.Left);
             var right = ResolveExpression(syntax.Right);
-            IBinaryOperation operation = syntax.OperatorToken.Type.ToBinaryOperation();
+            BinaryOperation operation = syntax.OperatorToken.Type.ToBinaryOperation();
 
             if (operation is null)
                 throw new System.Exception($"The binary operator '{syntax.OperatorToken.Value}' is not resolved");
@@ -125,7 +125,7 @@ namespace Translator
             var value = ResolveExpression(syntax.Expression);
 
             ObjectTypes expressionType = value.Type;
-            IBinaryOperation operation = syntax.Operator.Type.ToBinaryOperation();
+            BinaryOperation operation = syntax.Operator.Type.ToBinaryOperation();
 
             if (!_scope.TryGetValue(syntax.Identifier.Value, out var variable))
             {
@@ -147,7 +147,7 @@ namespace Translator
                 expressionType = operation.GetObjectType(variable.Type, value.Type);
             }
 
-            if (!ImplicitCast.Instance.IsApplicable(expressionType, variable.Type))
+            if (!ImplicitCasting.Instance.IsApplicable(expressionType, variable.Type))
             {
                 _diagnostic.ReportImpossibleImplicitCast(value.Type, variable.Type, syntax.Operator.Location);
 
@@ -162,7 +162,7 @@ namespace Translator
             ObjectTypes target = syntax.Keyword.Type.GetObjectType();
             var expression = ResolveExpression(syntax.Expression);
 
-            if (!ExplicitCast.Instance.IsApplicable(expression.Type, target))
+            if (!ExplicitCasting.Instance.IsApplicable(expression.Type, target))
             {
                 _diagnostic.ReportImpossibleExplicitCast(expression.Type, target, syntax.Keyword.Location);
 
@@ -215,7 +215,7 @@ namespace Translator
                 return new ResolvedLostStatement();
             }
 
-            if (initExpression != null && !ImplicitCast.Instance.IsApplicable(initExpression.Type, type))
+            if (initExpression != null && !ImplicitCasting.Instance.IsApplicable(initExpression.Type, type))
             {
                 _diagnostic.ReportImpossibleImplicitCast(initExpression.Type, type, syntax.Operator.Location);
 

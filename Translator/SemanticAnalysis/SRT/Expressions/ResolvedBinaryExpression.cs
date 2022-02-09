@@ -5,7 +5,7 @@ namespace Translator.SRT
     internal sealed class ResolvedBinaryExpression : ResolvedExpression
     {
         public ResolvedBinaryExpression(ResolvedExpression left, 
-            IBinaryOperation operation, ResolvedExpression right, TextLocation operatorLocation)
+            BinaryOperation operation, ResolvedExpression right, TextLocation operatorLocation)
         {
             Left = left;
             Operation = operation;
@@ -17,7 +17,7 @@ namespace Translator.SRT
         public override ResolvedNodeKind Kind => ResolvedNodeKind.BinaryExpression;
         public override ObjectTypes Type { get; }
         public ResolvedExpression Left { get; }
-        public IBinaryOperation Operation { get; }
+        public BinaryOperation Operation { get; }
         public ResolvedExpression Right { get; }
         public TextLocation OperatorLocation { get; }
     }

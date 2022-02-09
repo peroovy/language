@@ -2,7 +2,7 @@
 
 namespace Translator
 {
-    internal sealed class Positive : IUnaryOperation
+    internal sealed class Positive : UnaryOperation
     {
         private Positive() { }
 
@@ -11,27 +11,21 @@ namespace Translator
             Instance = new Positive();
         }
 
-        public UnaryOperationKind Kind => UnaryOperationKind.Negation;
+        public override UnaryOperationKind Kind => UnaryOperationKind.Negation;
 
         public static Positive Instance { get; }
 
-        public Object Evaluate(Object operand)
-        {
-            if (operand.Type == ObjectTypes.Int)
-                return new Int((operand as Int).Value);
-
-            if (operand.Type == ObjectTypes.Float)
-                return new Float((operand as Float).Value);
-
-            throw new System.InvalidOperationException();
-        }
-
-        public ObjectTypes GetResultObjectType(ObjectTypes operand) => operand;
-
-        public bool IsApplicable(ObjectTypes operand)
+        public override bool IsApplicable(ObjectTypes operand)
         {
             return operand == ObjectTypes.Int
-                || operand == ObjectTypes.Float;
+                || operand == ObjectTypes.Float
+                || operand == ObjectTypes.Long;
         }
+
+        public override Object Evaluate(Int operand) => new Int(operand.Value);
+
+        public override Object Evaluate(Float operand) => new Float(operand.Value);
+
+        public override Object Evaluate(Long operand) => new Long(operand);
     }
 }

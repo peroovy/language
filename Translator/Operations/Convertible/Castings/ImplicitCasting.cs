@@ -2,18 +2,18 @@
 
 namespace Translator
 {
-    internal class ImplicitCast : ICastOperation
+    internal class ImplicitCasting : IConvertibleOperation
     {
-        private ImplicitCast() { }
+        private ImplicitCasting() { }
 
-        static ImplicitCast()
+        static ImplicitCasting()
         {
-            Instance = new ImplicitCast();
+            Instance = new ImplicitCasting();
         }
 
-        public static ImplicitCast Instance { get; }
+        public static ImplicitCasting Instance { get; }
 
-        public Object CastTo(ObjectTypes to, Object obj)
+        public Object Apply(Object obj, ObjectTypes to)
         {
             if (obj.Type == to)
                 return obj;

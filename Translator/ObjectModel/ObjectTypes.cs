@@ -5,7 +5,6 @@
         Int,
         Float,
         Bool,
-        Null,
         Object,
         Unknown,
         Long,

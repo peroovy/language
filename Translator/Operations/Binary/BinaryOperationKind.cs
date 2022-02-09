@@ -10,8 +10,8 @@
 
         Less,
         LessOrEquality,
-        More,
-        MoreOrEquality,
+        Greater,
+        GreaterOrEquality,
         Equality,
         NotEquality,
         LogicalAnd,
