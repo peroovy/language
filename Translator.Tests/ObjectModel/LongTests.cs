@@ -123,6 +123,22 @@ namespace Translator.Tests.ObjectModel
             CheckEvaluation('*', Translator.Multiplication.Instance, (l, r) => l * r, start, end);
         }
 
+        [Test]
+        public void ImplicitCasting_FromInt()
+        {
+            var zero = (Long)ImplicitCasting.Instance.Apply(new Int(), ObjectTypes.Long);
+            Assert.AreEqual("0", zero.Value);
+
+            for (var i = 1; i < int.MaxValue - 10; i = i * 2 + i % 3)
+            {
+                var positive = (Long)ImplicitCasting.Instance.Apply(new Int(i), ObjectTypes.Long);
+                var negative = (Long)ImplicitCasting.Instance.Apply(new Int(-i), ObjectTypes.Long);
+
+                Assert.AreEqual(i.ToString(), positive.Value);
+                Assert.AreEqual((-i).ToString(), negative.Value);
+            }
+        }
+
         private void CheckEvaluation(
             char sign,
             BinaryOperation operation,

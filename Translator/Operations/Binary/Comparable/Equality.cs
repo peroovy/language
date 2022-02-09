@@ -21,13 +21,11 @@ namespace Translator
 
         public override Object Evaluate(Int left, Long right) => Evaluate(right, left);
 
-
         public override Object Evaluate(Float left, Int right) => Evaluate(right, left);
 
         public override Object Evaluate(Float left, Float right) => new Bool(left.Value == right.Value);
 
         public override Object Evaluate(Float left, Long right) => Evaluate(right, left);
-
 
         public override Object Evaluate(Long left, Int right) => new Bool(left.Value == right.ToString());
 

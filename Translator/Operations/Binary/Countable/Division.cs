@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Translator.ObjectModel;
+﻿using Translator.ObjectModel;
 
 namespace Translator
 {
@@ -22,7 +21,9 @@ namespace Translator
 
         public override Object Evaluate(Int left, Long right)
         {
-            throw new System.NotImplementedException();
+            var longLeft = (Long)ImplicitCasting.Instance.Apply(left, ObjectTypes.Long);
+
+            return Evaluate(longLeft, right);
         }
 
         public override Object Evaluate(Float left, Int right) => right.Value == 0 ? null : new Float(left.Value / right.Value);

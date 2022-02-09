@@ -24,7 +24,6 @@ namespace Translator
             throw new System.NotImplementedException();
         }
 
-
         public override Object Evaluate(Float left, Int right) => new Float(Evaluate(left.Value, right.Value));
 
         public override Object Evaluate(Float left, Float right) => new Float(Evaluate(left.Value, right.Value));
@@ -33,7 +32,6 @@ namespace Translator
         {
             throw new System.NotImplementedException();
         }
-
 
         public override Object Evaluate(Long left, Int right)
         {

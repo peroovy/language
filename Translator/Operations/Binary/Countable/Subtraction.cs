@@ -22,7 +22,9 @@ namespace Translator
 
         public override Object Evaluate(Int left, Long right)
         {
-            throw new System.NotImplementedException();
+            var longLeft = (Long)ImplicitCasting.Instance.Apply(left, ObjectTypes.Long);
+
+            return Evaluate(longLeft, right);
         }
 
         public override Object Evaluate(Float left, Int right) => new Int(left.Value - right.Value);

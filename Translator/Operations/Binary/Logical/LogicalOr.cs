@@ -2,7 +2,7 @@
 
 namespace Translator
 {
-    internal sealed class LogicalOr : BinaryOperation
+    internal sealed class LogicalOr : LogicalBinaryOperation
     {
         private LogicalOr() { }
 
@@ -14,10 +14,6 @@ namespace Translator
         public override BinaryOperationKind Kind => BinaryOperationKind.LogicalOr;
 
         public static LogicalOr Instance { get; }
-
-        public override ObjectTypes GetObjectType(ObjectTypes left, ObjectTypes right) => ObjectTypes.Bool;
-
-        public override bool IsApplicable(ObjectTypes left, ObjectTypes right) => left == ObjectTypes.Bool && right == ObjectTypes.Bool;
 
         public override Object Evaluate(Bool left, Bool right) => new Bool(left.Value || right.Value);
     }

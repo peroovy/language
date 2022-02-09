@@ -40,7 +40,7 @@ namespace Translator
 
         public override Object Evaluate(Long left, Float right)
         {
-            return base.Evaluate(left, right);
+            throw new System.NotImplementedException();
         }
 
         public override Object Evaluate(Long left, Long right)

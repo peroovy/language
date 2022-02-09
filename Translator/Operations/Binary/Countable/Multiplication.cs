@@ -5,7 +5,7 @@ namespace Translator
 {
     internal sealed class Multiplication : NumberBinaryOperation
     {
-       private Multiplication() { }
+        private Multiplication() { }
 
         static Multiplication()
         {
@@ -22,7 +22,9 @@ namespace Translator
 
         public override Object Evaluate(Int left, Long right)
         {
-            throw new System.NotImplementedException();
+            var longLeft = (Long)ImplicitCasting.Instance.Apply(left, ObjectTypes.Long);
+
+            return Evaluate(longLeft, right);
         }
 
         public override Object Evaluate(Float left, Int right) => Evaluate(right, left);
@@ -96,7 +98,7 @@ namespace Translator
             return chunks;
         }
 
-        private static long[] MultiplyQuadratically(long[] left, long[] right)
+        private long[] MultiplyQuadratically(long[] left, long[] right)
         {
             var dimension = left.Length + right.Length;
             var chunks = new long[dimension];

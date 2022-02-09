@@ -31,10 +31,10 @@ namespace Translator.ObjectModel
         public static readonly int MediumDimension = 2;
 
         public override ObjectTypes Type => ObjectTypes.Long;
+        public string Value { get; }
 
         public bool IsNegative { get; }
         public ImmutableArray<long> Chunks { get; }
-        public string Value { get; }
         public int Dimension => Chunks.Length;
 
         public override string ToString() => Value;
@@ -76,10 +76,11 @@ namespace Translator.ObjectModel
 
         public static Long Create(long[] chunks, bool isNegative)
         {
+            Normalize(ref chunks);
+
             if (chunks.Length == 0 || chunks.Length == 1 && chunks[0] == 0)
                 return new Long();
 
-            Normalize(ref chunks);
             var builder = new StringBuilder();
 
             builder.Append(isNegative ? "-" : "");
@@ -93,18 +94,23 @@ namespace Translator.ObjectModel
 
         private static void Normalize(ref long[] chunks)
         {
-            for (var i = 0; i < chunks.Length - 1; i++)
+            var normalized = new long[chunks.Length + 1];
+            chunks.CopyTo(normalized, 0);
+
+            for (var i = 0; i < normalized.Length - 1; i++)
             {
-                if (chunks[i] >= 0 && chunks[i] < Base)
+                if (normalized[i] >= 0 && normalized[i] < Base)
                     continue;
 
-                var carry = chunks[i] >= Base
-                    ? chunks[i] / Base
-                    : (chunks[i] + 1) / Base - 1;
+                var carry = normalized[i] >= Base
+                    ? normalized[i] / Base
+                    : (normalized[i] + 1) / Base - 1;
 
-                chunks[i + 1] += carry;
-                chunks[i] -= carry * Base;
+                normalized[i + 1] += carry;
+                normalized[i] -= carry * Base;
             }
+
+            chunks = normalized;
 
             RemoveLeadingZeros(ref chunks);
         }

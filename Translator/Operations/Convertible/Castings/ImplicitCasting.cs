@@ -21,13 +21,17 @@ namespace Translator
             if (obj.Type == ObjectTypes.Int && to == ObjectTypes.Float)
                 return new Float((obj as Int).Value);
 
+            if (obj.Type == ObjectTypes.Int && to == ObjectTypes.Long)
+                return Long.Create((obj as Int).Value);
+
             throw new System.InvalidCastException();
         }
 
         public bool IsApplicable(ObjectTypes from, ObjectTypes to)
         {
             return from == to
-                || from == ObjectTypes.Int && to == ObjectTypes.Float;
+                || from == ObjectTypes.Int && to == ObjectTypes.Float
+                || from == ObjectTypes.Int && to == ObjectTypes.Long;
         }
     }
 }
