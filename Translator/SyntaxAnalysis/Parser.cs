@@ -97,7 +97,8 @@ namespace Translator
             var unaryPrecedence = Current.Type.GetUnaryOperatorPrecedence();
             if (Peek(0).Type == TokenTypes.OpenParenthesis && (Peek(1).Type == TokenTypes.IntKeyword 
                                                             || Peek(1).Type == TokenTypes.FloatKeyword 
-                                                            || Peek(1).Type == TokenTypes.BoolKeyword)
+                                                            || Peek(1).Type == TokenTypes.BoolKeyword
+                                                            || Peek(1).Type == TokenTypes.LongKeyword)
              && Peek(2).Type == TokenTypes.CloseParenthesis
              && unaryPrecedence >= parentPrecedence)
             {
@@ -166,11 +167,23 @@ namespace Translator
             }
 
             var number = MatchToken(TokenTypes.Number);
-            var type = number.Value == null 
-                ? ObjectTypes.Unknown 
-                : number.Value.Contains('.') ? ObjectTypes.Float : ObjectTypes.Int;
-
+            var type = ParseObjectType(number.Value);
+            
             return new SyntaxLiteralExpression(number, type);
+        }
+
+        private ObjectTypes ParseObjectType(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return ObjectTypes.Unknown;
+
+            if (value.Contains('.'))
+                return ObjectTypes.Float;
+
+            if (Int.TryParse(value, out var obj))
+                return ObjectTypes.Int;
+
+            return ObjectTypes.Long;
         }
 
         #endregion

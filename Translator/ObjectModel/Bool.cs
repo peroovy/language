@@ -14,6 +14,6 @@
 
         public override string ToString() => Value ? "true" : "false";
 
-        public static Bool Create(string value) => new Bool(bool.Parse(value));
+        public static Bool Parse(string value) => new Bool(bool.Parse(value));
     }
 }

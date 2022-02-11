@@ -72,6 +72,7 @@
     <Compile Include="Translator\ObjectModel\Long.cs" />
     <Compile Include="Translator\ObjectModel\ObjectTypes.cs" />
     <Compile Include="Translator\Operations\Binary\Comparable\ComparableBinaryOperation.cs" />
+    <Compile Include="Translator\Operations\Binary\Logical\LogicalBinaryOperation.cs" />
     <Compile Include="Translator\SemanticAnalysis\SRT\Expressions\ResolvedExplicitCastExpression.cs" />
     <Compile Include="Translator\ObjectModel\Variable.cs" />
     <Compile Include="Translator\Operations\Binary\Countable\CountableBinaryOperation.cs" />
@@ -93,8 +94,8 @@
     <Compile Include="Translator\Operations\Binary\BinaryOperation.cs" />
     <Compile Include="Translator\Operations\Binary\Comparable\Less.cs" />
     <Compile Include="Translator\Operations\Binary\Comparable\LessOrEquality.cs" />
-    <Compile Include="Translator\Operations\Binary\Comparable\LogicalAnd.cs" />
-    <Compile Include="Translator\Operations\Binary\Comparable\LogicalOr.cs" />
+    <Compile Include="Translator\Operations\Binary\Logical\LogicalAnd.cs" />
+    <Compile Include="Translator\Operations\Binary\Logical\LogicalOr.cs" />
     <Compile Include="Translator\Operations\Binary\Comparable\Greater.cs" />
     <Compile Include="Translator\Operations\Binary\Comparable\GreaterOrEquality.cs" />
     <Compile Include="Translator\Operations\Binary\Countable\Multiplication.cs" />

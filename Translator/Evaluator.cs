@@ -69,13 +69,16 @@ namespace Translator
             switch (literal.Type)
             {
                 case ObjectTypes.Int:
-                    return Int.Create(literal.Value);
+                    return Int.Parse(literal.Value);
 
                 case ObjectTypes.Float:
-                    return Float.Create(literal.Value);
+                    return Float.Parse(literal.Value);
 
                 case ObjectTypes.Bool:
-                    return Bool.Create(literal.Value);
+                    return Bool.Parse(literal.Value);
+
+                case ObjectTypes.Long:
+                    return Long.Parse(literal.Value);
 
                 case ObjectTypes.Unknown:
                     return null;

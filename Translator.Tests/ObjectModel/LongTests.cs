@@ -25,8 +25,8 @@ namespace Translator.Tests.ObjectModel
         {
             var num = string.Join("", GenerateDigits(length).Reverse());
             var negative_s = "-" + num;
-            var positive = Long.Create(num).ToString();
-            var negitive = Long.Create(negative_s).ToString();
+            var positive = Long.Parse(num).ToString();
+            var negitive = Long.Parse(negative_s).ToString();
 
             Assert.AreEqual(num, positive, num);
             Assert.AreEqual(negative_s, negitive, negative_s);
@@ -159,8 +159,8 @@ namespace Translator.Tests.ObjectModel
                         var signedLeft = (i == 0 ? "-" : "") + left_s;
                         var signedRight = (j == 0 ? "-" : "") + right_s;
 
-                        var left = Long.Create(signedLeft);
-                        var right = Long.Create(signedRight);
+                        var left = Long.Parse(signedLeft);
+                        var right = Long.Parse(signedRight);
 
                         var expected = expectedOperation(BigInteger.Parse(signedLeft), BigInteger.Parse(signedRight)).ToString();
                         var actual = operation.Evaluate(left, right).ToString();
@@ -186,7 +186,7 @@ namespace Translator.Tests.ObjectModel
 
         private void Check_ToString(string value, string expected = null)
         {
-            var actual = Long.Create(value).ToString();
+            var actual = Long.Parse(value).ToString();
 
             Assert.AreEqual(expected ?? value, actual);
         }

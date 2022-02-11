@@ -16,6 +16,7 @@ namespace Translator.ObjectModel
 
         public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 
-        public static Float Create(string value) => new Float(double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture));
+        public static Float Parse(string value) => 
+            new Float(double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture));
     }
 }

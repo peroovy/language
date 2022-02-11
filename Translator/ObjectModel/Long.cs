@@ -39,7 +39,7 @@ namespace Translator.ObjectModel
 
         public override string ToString() => Value;
 
-        public static Long Create(string value)
+        public static Long Parse(string value)
         {
             if (string.IsNullOrEmpty(value))
                 throw new InvalidOperationException();

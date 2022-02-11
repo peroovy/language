@@ -19,12 +19,14 @@
 
         public override string ToString() => Value.ToString();
 
-        public static Int Create(string value)
-        {
-            if (!int.TryParse(value, out var number))
-                throw new System.OverflowException();
+        public static Int Parse(string value) => new Int(int.Parse(value));
 
-            return new Int(number);
+        public static bool TryParse(string value, out Int obj)
+        {
+            var is_parsed = int.TryParse(value, out var number);
+
+            obj = is_parsed ? new Int(number) : null;
+            return is_parsed;
         }
     }
 }
