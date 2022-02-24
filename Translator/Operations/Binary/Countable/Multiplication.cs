@@ -55,6 +55,20 @@ namespace Translator
 
             return Long.Create(chunks, isNegative);
         }
+        
+        public Long Evaluate(Long big, long small)
+        {
+            if (small >= Long.Base)
+                throw new System.ArgumentOutOfRangeException();
+
+            var result = new long[big.Dimension + 1];
+            var isNegativeResult = big.IsNegative ^ small < 0;
+
+            for (var i = big.Dimension - 1; i >= 0; i--)
+                result[i] = big.Chunks[i] * small;
+
+            return Long.Create(result, isNegativeResult);
+        }
 
         public long[] Evaluate(long[] left, long[] right)
         {

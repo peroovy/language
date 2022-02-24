@@ -10,7 +10,6 @@ namespace Translator.ObjectModel
         public Long()
         {
             Chunks = ImmutableArray.Create(0L);
-            Value = "0";
         }
 
         public Long(Long value)
@@ -19,11 +18,10 @@ namespace Translator.ObjectModel
             IsNegative = value.IsNegative;
         }
 
-        private Long(ImmutableArray<long> chunks, bool isNegative, string value)
+        private Long(ImmutableArray<long> chunks, bool isNegative)
         {
             Chunks = chunks;
             IsNegative = isNegative;
-            Value = value;
         }
 
         public static readonly int ChunkLength = 5;
@@ -31,13 +29,52 @@ namespace Translator.ObjectModel
         public static readonly int MediumDimension = 2;
 
         public override ObjectTypes Type => ObjectTypes.Long;
-        public string Value { get; }
+        public string Value => ToString();
 
         public bool IsNegative { get; }
         public ImmutableArray<long> Chunks { get; }
         public int Dimension => Chunks.Length;
 
-        public override string ToString() => Value;
+        public Long Absolute => new Long(Chunks.ToImmutableArray(), false);
+
+        public bool IsZero() => Chunks.All(chunk => chunk == 0);
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(IsNegative ? "-" : "");
+            builder.Append(Chunks.Last());
+
+            foreach (var chunk in Chunks.Reverse().Skip(1))
+                builder.Append(chunk.ToString().PadLeft(ChunkLength, '0'));
+
+            return builder.ToString();
+        }
+
+        public Long ShiftRight(int counts)
+        {
+            if (counts > Dimension || counts < 0)
+                throw new ArgumentOutOfRangeException();
+
+            if (counts == Dimension)
+                return new Long();
+
+            var chunks = Chunks.Take(Dimension - counts);
+            return new Long(chunks.ToImmutableArray(), IsNegative);
+        }
+
+        public Long PushBack(long digit)
+        {
+            if (digit >= Base)
+                throw new ArgumentOutOfRangeException();
+
+            var builder = ImmutableArray.CreateBuilder<long>();
+            builder.Add(digit);
+            builder.AddRange(Chunks);
+
+            return new Long(builder.ToImmutableArray(), IsNegative);
+        }
 
         public static Long Parse(string value)
         {
@@ -81,16 +118,10 @@ namespace Translator.ObjectModel
             if (chunks.Length == 0 || chunks.Length == 1 && chunks[0] == 0)
                 return new Long();
 
-            var builder = new StringBuilder();
-
-            builder.Append(isNegative ? "-" : "");
-            builder.Append(chunks.Last());
-
-            foreach (var chunk in chunks.Reverse().Skip(1))
-                builder.Append(chunk.ToString().PadLeft(ChunkLength, '0'));
-
-            return new Long(chunks.ToImmutableArray(), isNegative, builder.ToString());
+            return new Long(chunks.ToImmutableArray(), isNegative);
         }
+
+        public static Long Create(Long obj, bool isNegative) => new Long(obj.Chunks.ToImmutableArray(), isNegative);
 
         private static void Normalize(ref long[] chunks)
         {

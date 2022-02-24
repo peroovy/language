@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using Translator.ObjectModel;
 
 namespace Translator
@@ -50,18 +51,18 @@ namespace Translator
 
         public override Object Evaluate(Long left, Long right)
         {
-            var value = Evaluate(left.Chunks.ToArray(), left.IsNegative, right.Chunks.ToArray(), right.IsNegative);
+            var value = Evaluate(left.Chunks, left.IsNegative, right.Chunks, right.IsNegative);
 
             return new Bool(value);
         }
 
-        public bool Evaluate(long[] left, bool isNegativeLeft, long[] right, bool isNegativeRight)
+        public bool Evaluate(ImmutableArray<long> left, bool isNegativeLeft, ImmutableArray<long> right, bool isNegativeRight)
         {
             if (isNegativeLeft != isNegativeRight)
                 return isNegativeLeft == false;
 
             if (left.Length != right.Length)
-                return left.Length > right.Length;
+                return left.Length > right.Length ^ isNegativeLeft;
 
             for (var i = left.Length - 1; i >= 0; i--)
             {
@@ -69,7 +70,7 @@ namespace Translator
                     return left[i] > right[i] ^ isNegativeLeft;
             }
 
-            return true;
+            return false;
         }
     }
 }

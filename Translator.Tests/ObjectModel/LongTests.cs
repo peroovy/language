@@ -100,7 +100,7 @@ namespace Translator.Tests.ObjectModel
         [TestCase(1001, 2000)]
         public void Addition(int start, int end)
         {
-            CheckEvaluation('+', Translator.Addition.Instance, (l, r) => l + r, start, end);
+            CheckEvaluation("+", Translator.Addition.Instance, (l, r) => l + r, start, end);
         }
 
         [TestCase(1, 5)]
@@ -110,7 +110,7 @@ namespace Translator.Tests.ObjectModel
         [TestCase(1001, 2000)]
         public void Subtraction(int start, int end)
         {
-            CheckEvaluation('-', Translator.Subtraction.Instance, (l, r) => l - r, start, end);
+            CheckEvaluation("-", Translator.Subtraction.Instance, (l, r) => l - r, start, end);
         }
 
         [TestCase(1, 5)]
@@ -120,7 +120,77 @@ namespace Translator.Tests.ObjectModel
         [TestCase(1001, 2000)]
         public void Multiplication(int start, int end)
         {
-            CheckEvaluation('*', Translator.Multiplication.Instance, (l, r) => l * r, start, end);
+            CheckEvaluation("*", Translator.Multiplication.Instance, (l, r) => l * r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void Division(int start, int end)
+        {
+            CheckEvaluation("/", Translator.Division.Instance, (l, r) => l / r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void Equality(int start, int end)
+        {
+            CheckEvaluation("==", Translator.Equality.Instance, (l, r) => l == r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void NotEquality(int start, int end)
+        {
+            CheckEvaluation("!=", Translator.NotEquality.Instance, (l, r) => l != r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void Greater(int start, int end)
+        {
+            CheckEvaluation(">", Translator.Greater.Instance, (l, r) => l > r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void GreaterOrEquality(int start, int end)
+        {
+            CheckEvaluation(">=", Translator.GreaterOrEquality.Instance, (l, r) => l >= r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void Less(int start, int end)
+        {
+            CheckEvaluation("<", Translator.Less.Instance, (l, r) => l < r, start, end);
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void LessOrEquality(int start, int end)
+        {
+            CheckEvaluation("<=", Translator.LessOrEquality.Instance, (l, r) => l <= r, start, end);
         }
 
         [Test]
@@ -139,10 +209,10 @@ namespace Translator.Tests.ObjectModel
             }
         }
 
-        private void CheckEvaluation(
-            char sign,
+        private void CheckEvaluation<TResultExpected>(
+            string sign,
             BinaryOperation operation,
-            Func<BigInteger, BigInteger, BigInteger> expectedOperation,
+            Func<BigInteger, BigInteger, TResultExpected> expectedOperation,
             int startLength, int endLength)
         {
             var digits = GenerateDigits(endLength);
@@ -150,22 +220,26 @@ namespace Translator.Tests.ObjectModel
             for (var length = startLength; length <= endLength; length++)
             {
                 var left_s = string.Join("", digits.Take(length));
-                var right_s = string.Join("", digits.Reverse().Take(length));
 
-                for (var i = 0; i < 2; i++)
+                for (var diff = length - 1 > 0 ? -1 : 0; diff <= 1; diff++)
                 {
-                    for (var j = 0; j < 2; j++)
+                    var right_s = string.Join("", digits.Take(length + diff));
+
+                    for (var i = 0; i < 2; i++)
                     {
-                        var signedLeft = (i == 0 ? "-" : "") + left_s;
-                        var signedRight = (j == 0 ? "-" : "") + right_s;
+                        for (var j = 0; j < 2; j++)
+                        {
+                            var signedLeft = (i == 0 ? "-" : "") + left_s;
+                            var signedRight = (j == 0 ? "-" : "") + right_s;
 
-                        var left = Long.Parse(signedLeft);
-                        var right = Long.Parse(signedRight);
+                            var left = Long.Parse(signedLeft);
+                            var right = Long.Parse(signedRight);
 
-                        var expected = expectedOperation(BigInteger.Parse(signedLeft), BigInteger.Parse(signedRight)).ToString();
-                        var actual = operation.Evaluate(left, right).ToString();
+                            var expected = expectedOperation(BigInteger.Parse(signedLeft), BigInteger.Parse(signedRight)).ToString();
+                            var actual = operation.Evaluate(left, right).ToString();
 
-                        Assert.AreEqual(expected, actual, $"{signedLeft} {sign} {signedRight}");
+                            Assert.AreEqual(expected.ToLower(), actual.ToLower(), $"{signedLeft} {sign} {signedRight}");
+                        }
                     }
                 }
             }
@@ -177,7 +251,7 @@ namespace Translator.Tests.ObjectModel
 
             for (var i = 0; i < length; i++)
             {
-                var digit = (short)_randGenerator.Next(i == length - 1 ? 1 : 0, 10);
+                var digit = (short)_randGenerator.Next(1, 10);
                 digits[i] = digit;
             }
 

@@ -14,10 +14,10 @@ namespace Translator
 
                 [(ObjectTypes.Float, ObjectTypes.Int)] = ObjectTypes.Float,
                 [(ObjectTypes.Float, ObjectTypes.Float)] = ObjectTypes.Float,
-                [(ObjectTypes.Float, ObjectTypes.Long)] = ObjectTypes.Long,
+                //[(ObjectTypes.Float, ObjectTypes.Long)] = ObjectTypes.Long,
 
                 [(ObjectTypes.Long, ObjectTypes.Int)] = ObjectTypes.Long,
-                [(ObjectTypes.Long, ObjectTypes.Float)] = ObjectTypes.Long,
+                //[(ObjectTypes.Long, ObjectTypes.Float)] = ObjectTypes.Long,
                 [(ObjectTypes.Long, ObjectTypes.Long)] = ObjectTypes.Long,
             };
 

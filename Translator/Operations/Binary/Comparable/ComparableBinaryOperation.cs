@@ -13,9 +13,9 @@ namespace Translator
                 || left == ObjectTypes.Int && right == ObjectTypes.Long
                 || left == ObjectTypes.Float && right == ObjectTypes.Int
                 || left == ObjectTypes.Float && right == ObjectTypes.Float
-                || left == ObjectTypes.Float && right == ObjectTypes.Long
+                //|| left == ObjectTypes.Float && right == ObjectTypes.Long
                 || left == ObjectTypes.Long && right == ObjectTypes.Int
-                || left == ObjectTypes.Long && right == ObjectTypes.Float
+                //|| left == ObjectTypes.Long && right == ObjectTypes.Float
                 || left == ObjectTypes.Long && right == ObjectTypes.Long;
         }
     }

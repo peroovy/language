@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using Translator.ObjectModel;
 
 namespace Translator
@@ -50,30 +51,25 @@ namespace Translator
 
         public override Object Evaluate(Long left, Long right)
         {
-            var leftChunks = left.Chunks.ToArray();
-            var rightChunks = right.Chunks.ToArray();
-            var isNegativeLeft = left.IsNegative;
-            var isNegativeRight = right.IsNegative;
-
             long[] chunks;
             bool isNegative;
-            if (isNegativeLeft == isNegativeRight)
+            if (left.IsNegative == right.IsNegative)
             {
-                var isMoreAbsRight = Greater.Instance.Evaluate(rightChunks, false, leftChunks, false);
+                var isMoreAbsRight = Greater.Instance.Evaluate(right.Chunks, false, left.Chunks, false);
 
-                chunks = isMoreAbsRight ? Evaluate(rightChunks, leftChunks) : Evaluate(leftChunks, rightChunks);
-                isNegative = isNegativeLeft && isNegativeRight ? !isMoreAbsRight : isMoreAbsRight;
+                chunks = isMoreAbsRight ? Evaluate(right.Chunks, left.Chunks) : Evaluate(left.Chunks, right.Chunks);
+                isNegative = left.IsNegative && right.IsNegative ? !isMoreAbsRight : isMoreAbsRight;
             }
             else
             {
-                chunks = Addition.Instance.Evaluate(leftChunks, rightChunks);
-                isNegative = isNegativeLeft;
+                chunks = Addition.Instance.Evaluate(left.Chunks, right.Chunks);
+                isNegative = left.IsNegative;
             }
 
             return Long.Create(chunks, isNegative);
         }
 
-        public long[] Evaluate(long[] left, long[] right)
+        public long[] Evaluate(ImmutableArray<long> left, ImmutableArray<long> right)
         {
             var dimension = System.Math.Max(left.Length, right.Length);
             var chunks = new long[dimension];
