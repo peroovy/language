@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Translator.ObjectModel;
 
 namespace Translator.Tests.ObjectModel
@@ -217,32 +218,45 @@ namespace Translator.Tests.ObjectModel
         {
             var digits = GenerateDigits(endLength);
 
-            for (var length = startLength; length <= endLength; length++)
+            for (var leftLength = startLength; leftLength <= endLength; leftLength++)
             {
-                var left_s = string.Join("", digits.Take(length));
+                var left = string.Join("", digits.Take(leftLength));
 
-                for (var diff = length - 1 > 0 ? -1 : 0; diff <= 1; diff++)
+                var step = leftLength < 4 ? 1 : leftLength / 4;
+                for (var rightLength = step; rightLength <= leftLength; rightLength += step)
                 {
-                    var right_s = string.Join("", digits.Take(length + diff));
-
-                    for (var i = 0; i < 2; i++)
-                    {
-                        for (var j = 0; j < 2; j++)
-                        {
-                            var signedLeft = (i == 0 ? "-" : "") + left_s;
-                            var signedRight = (j == 0 ? "-" : "") + right_s;
-
-                            var left = Long.Parse(signedLeft);
-                            var right = Long.Parse(signedRight);
-
-                            var expected = expectedOperation(BigInteger.Parse(signedLeft), BigInteger.Parse(signedRight)).ToString();
-                            var actual = operation.Evaluate(left, right).ToString();
-
-                            Assert.AreEqual(expected.ToLower(), actual.ToLower(), $"{signedLeft} {sign} {signedRight}");
-                        }
-                    }
+                    var right = string.Join("", digits.Take(rightLength));
+                    RunOperationCheckerAsync(sign, operation, expectedOperation, left, right);
                 }
             }
+        }
+
+        private void RunOperationCheckerAsync<TResultExpected>(
+            string sign, 
+            BinaryOperation operation, 
+            Func<BigInteger, BigInteger, TResultExpected> expectedOperation, 
+            string left, string right)
+        {
+            var task = Task.Run((() =>
+            {
+                for (var i = 0; i < 2; i++)
+                {
+                    for (var j = 0; j < 2; j++)
+                    {
+                        var signedLeft = (i == 0 ? "-" : "") + left;
+                        var signedRight = (j == 0 ? "-" : "") + right;
+
+                        var leftLong = Long.Parse(signedLeft);
+                        var rightLong = Long.Parse(signedRight);
+
+                        var expected = expectedOperation(
+                            BigInteger.Parse(signedLeft), BigInteger.Parse(signedRight)).ToString();
+                        var actual = operation.Evaluate(leftLong, rightLong).ToString();
+
+                        Assert.AreEqual(expected.ToLower(), actual.ToLower(), $"{signedLeft} {sign} {signedRight}");
+                    }
+                }
+            }));
         }
 
         private short[] GenerateDigits(int length)

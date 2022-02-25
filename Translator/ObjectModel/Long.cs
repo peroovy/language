@@ -52,16 +52,13 @@ namespace Translator.ObjectModel
             return builder.ToString();
         }
 
-        public Long ShiftRight(int counts)
+        public Long Take(int counts)
         {
-            if (counts > Dimension || counts < 0)
-                throw new ArgumentOutOfRangeException();
+            var chunks = Chunks
+                .Skip(Dimension - counts)
+                .ToArray();
 
-            if (counts == Dimension)
-                return new Long();
-
-            var chunks = Chunks.Take(Dimension - counts);
-            return new Long(chunks.ToImmutableArray(), IsNegative);
+            return Create(chunks, IsNegative);
         }
 
         public Long PushBack(long digit)
@@ -69,11 +66,11 @@ namespace Translator.ObjectModel
             if (digit >= Base)
                 throw new ArgumentOutOfRangeException();
 
-            var builder = ImmutableArray.CreateBuilder<long>();
-            builder.Add(digit);
-            builder.AddRange(Chunks);
+            var chunks = new long[Dimension + 1];
+            chunks[0] = digit;
+            Chunks.CopyTo(chunks, 1);
 
-            return new Long(builder.ToImmutableArray(), IsNegative);
+            return Create(chunks, IsNegative);
         }
 
         public static Long Parse(string value)

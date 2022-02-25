@@ -47,9 +47,72 @@ namespace Translator
             throw new System.NotImplementedException();
         }
 
-        public override Object Evaluate(Long left, Long right)
+        public override Object Evaluate(Long left, Long right) => 
+            Evaluate(left, right, out var remainder);
+            
+        public Long Evaluate(Long left, Long right, out Long remainder)
         {
-            throw new System.NotImplementedException();
+            var isNegative = left.IsNegative ^ right.IsNegative;
+            var dividend = left.Absolute;
+            var divisor = right.Absolute;
+            
+            if (right.IsZero())
+            {
+                remainder = null;
+                return null;
+            }
+
+            if ((Less.Instance.Evaluate(dividend, divisor) as Bool).Value)
+            {
+                remainder = dividend;
+                return new Long();
+            }
+
+            var dimension = dividend.Dimension - divisor.Dimension + 1;
+            remainder = dividend.Take(divisor.Dimension);
+            if ((Less.Instance.Evaluate(remainder, divisor) as Bool).Value)
+            {
+                remainder = dividend.Take(divisor.Dimension + 1);
+                dimension--;
+            }
+
+            var quotient = new long[dimension];
+            for (var i = quotient.Length - 1; i >= 0; i--)
+            {
+                if (i != quotient.Length - 1)
+                    remainder = remainder.PushBack(dividend.Chunks[i]);
+
+                var digit = GetNextDigit(remainder, divisor);
+                quotient[i] = digit;
+
+                Long mult = Multiplication.Instance.Evaluate(divisor, digit);
+                remainder = (Long)Subtraction.Instance.Evaluate(remainder, mult);
+            }
+
+            return Long.Create(quotient, isNegative);
+        }
+
+        private long GetNextDigit(Long remainder, Long divisor)
+        {
+            var left = 0;
+            var right = Long.Base;
+
+            while (left < right - 1)
+            {
+                var mid = left + (right - left) / 2;
+
+                Long mult = Multiplication.Instance.Evaluate(divisor, mid);
+                if ((LessOrEquality.Instance.Evaluate(mult, remainder) as Bool).Value)
+                {
+                    left = mid;
+                }
+                else
+                {
+                    right = mid;
+                }
+            }
+
+            return left;
         }
     }
 }
