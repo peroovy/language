@@ -56,7 +56,7 @@ namespace Translator
             var dividend = left.Absolute;
             var divisor = right.Absolute;
             
-            if (right.IsZero())
+            if (right.IsZero)
             {
                 remainder = null;
                 return null;

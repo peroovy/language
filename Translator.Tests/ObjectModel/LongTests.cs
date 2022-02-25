@@ -194,6 +194,41 @@ namespace Translator.Tests.ObjectModel
             CheckEvaluation("<=", Translator.LessOrEquality.Instance, (l, r) => l <= r, start, end);
         }
 
+        [TestCase(1, 5)]
+        [TestCase(6, 10)]
+        [TestCase(11, 100)]
+        [TestCase(101, 1000)]
+        [TestCase(1001, 2000)]
+        public void Exponentiation(int start, int end, int absExponent = 1000)
+        {
+            for (var length = start; length <= end; length++)
+            {
+                var digits = GenerateDigits(length);
+
+                for (var i = 0; i < 2; i++)
+                {
+                    var longLeft = Long.Create(digits, i == 0);
+                    var abs = longLeft.Absolute;
+
+                    for (var exponent = -absExponent; exponent <= absExponent; exponent++)
+                    {
+                        Task.Run(() =>
+                        {
+                            var expected = BigInteger.Pow(BigInteger.Parse(abs.Value), Math.Abs(exponent));
+                            if (longLeft.IsNegative && Math.Abs(exponent) % 2 == 1)
+                                expected *= -1;
+                            if (exponent < 0)
+                                expected = 1 / expected;
+
+                            var actual = Translator.Exponentiation.Instance.Evaluate(longLeft, Long.Create(exponent));
+
+                            Assert.AreEqual(expected.ToString(), actual.ToString(), $"{longLeft} ** {exponent}");
+                        });
+                    }
+                }
+            }
+        }
+
         [Test]
         public void ImplicitCasting_FromInt()
         {
@@ -259,13 +294,13 @@ namespace Translator.Tests.ObjectModel
             }));
         }
 
-        private short[] GenerateDigits(int length)
+        private long[] GenerateDigits(int length)
         {
-            var digits = new short[length];
+            var digits = new long[length];
 
             for (var i = 0; i < length; i++)
             {
-                var digit = (short)_randGenerator.Next(1, 10);
+                var digit = _randGenerator.Next(1, 10);
                 digits[i] = digit;
             }
 

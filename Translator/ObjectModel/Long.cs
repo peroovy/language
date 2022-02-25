@@ -37,7 +37,13 @@ namespace Translator.ObjectModel
 
         public Long Absolute => new Long(Chunks.ToImmutableArray(), false);
 
-        public bool IsZero() => Chunks.All(chunk => chunk == 0);
+        public bool IsZero => Chunks[0] == 0;
+
+        public bool IsEven => !IsOdd;
+
+        public bool IsOdd => (Chunks[0] & 1) == 0;
+
+        public static Long One => new Long(ImmutableArray.Create(1L), false);
 
         public override string ToString()
         {
@@ -118,7 +124,12 @@ namespace Translator.ObjectModel
             return new Long(chunks.ToImmutableArray(), isNegative);
         }
 
-        public static Long Create(Long obj, bool isNegative) => new Long(obj.Chunks.ToImmutableArray(), isNegative);
+        public static Long Create(Long obj, bool isNegative)
+        {
+            return obj.IsZero 
+                ? new Long() 
+                : new Long(obj.Chunks.ToImmutableArray(), isNegative);
+        }
 
         private static void Normalize(ref long[] chunks)
         {
