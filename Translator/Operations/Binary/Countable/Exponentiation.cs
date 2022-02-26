@@ -58,14 +58,14 @@ namespace Translator
 
             while (!rightAbs.IsZero)
             {
-                if (rightAbs.IsEven)
+                if (rightAbs.IsOdd)
                     result = (Long)Multiplication.Instance.Evaluate(result, leftAbs);
 
                 leftAbs = (Long)Multiplication.Instance.Evaluate(leftAbs, leftAbs);
                 rightAbs = (Long)Division.Instance.Evaluate(rightAbs, two);
             }
 
-            if (left.IsNegative && right.IsEven)
+            if (left.IsNegative && right.IsOdd)
                 isNegative = true;
 
             if (right.IsNegative)

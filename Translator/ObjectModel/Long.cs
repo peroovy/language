@@ -41,7 +41,7 @@ namespace Translator.ObjectModel
 
         public bool IsEven => !IsOdd;
 
-        public bool IsOdd => (Chunks[0] & 1) == 0;
+        public bool IsOdd => (Chunks[0] & 1) == 1;
 
         public static Long One => new Long(ImmutableArray.Create(1L), false);
 
